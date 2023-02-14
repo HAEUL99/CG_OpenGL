@@ -9,9 +9,14 @@ ContextUPtr Context::Create() {
 
 bool Context::Init() {
     float vertices[] = {
-    -0.5f, -0.5f, 0.0f,
-    0.5f, -0.5f, 0.0f,
-    0.0f, 0.5f, 0.0f,
+        0.5f, 0.5f, 0.0f, // top right
+        0.5f, -0.5f, 0.0f, // bottom right
+        -0.5f, -0.5f, 0.0f, // bottom left
+        -0.5f, 0.5f, 0.0f, // top left
+    };
+    uint32_t indices[] = { // note that we start from 0!
+        0, 1, 3, // first triangle
+        1, 2, 3, // second triangle
     };
 
     //creating vertex array object(정점 정보)
@@ -19,12 +24,12 @@ bool Context::Init() {
     glBindVertexArray(m_vertexArrayObject);
 
     //creating vertex buffer object(정점 위치)
-    glGenBuffers(1, &m_vertexBuffer); //새로운 buffer object를 만든다. -> vertex buffer object
-    glBindBuffer(GL_ARRAY_BUFFER, m_vertexBuffer); //지금부터 사용할 buffer object를 지정한다, gl_array_buffer: 사용할 buffer object는 vertex data를 저장할 용도임을 알려줌.
-    glBufferData(GL_ARRAY_BUFFER, sizeof(float) * 9, vertices, GL_STATIC_DRAW); // 지정된 buffer에 데이터를 복사한다
+    m_vertexBuffer = Buffer::CreateWithData(GL_ARRAY_BUFFER, GL_STATIC_DRAW, vertices, sizeof(float)*12);
 
 	glEnableVertexAttribArray(0); // 정점 attribute 중 n 번째를 사용하도록 설정
     glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(float) * 3, 0); // 정점의 n번째 attribute
+
+    m_indexBuffer = Buffer::CreateWithData(GL_ELEMENT_ARRAY_BUFFER, GL_STATIC_DRAW, indices, sizeof(uint32_t)*6);
 
     ShaderPtr vertShader = Shader::CreateFromFile("./shader/simple.vs", GL_VERTEX_SHADER);
     ShaderPtr fragShader = Shader::CreateFromFile("./shader/simple.fs", GL_FRAGMENT_SHADER);
@@ -50,6 +55,10 @@ bool Context::Init() {
 
 void Context::Render() {
     glClear(GL_COLOR_BUFFER_BIT);
+    //->Use();
     glUseProgram(m_program->Get());
-    glDrawArrays(GL_TRIANGLES, 0, 3);
+    glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
 }
+
+    
+
