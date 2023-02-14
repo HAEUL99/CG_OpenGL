@@ -23,11 +23,13 @@ bool Context::Init() {
     glGenVertexArrays(1, &m_vertexArrayObject); 
     glBindVertexArray(m_vertexArrayObject);
 
+    m_vertexLayout = VertexLayout::Create();
     //creating vertex buffer object(정점 위치)
     m_vertexBuffer = Buffer::CreateWithData(GL_ARRAY_BUFFER, GL_STATIC_DRAW, vertices, sizeof(float)*12);
 
-	glEnableVertexAttribArray(0); // 정점 attribute 중 n 번째를 사용하도록 설정
-    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(float) * 3, 0); // 정점의 n번째 attribute
+    m_vertexLayout->SetAttrib(0, 3, GL_FLOAT, GL_FALSE, sizeof(float) * 3, 0);
+	//glEnableVertexAttribArray(0); // 정점 attribute 중 n 번째를 사용하도록 설정
+    //glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(float) * 3, 0); // 정점의 n번째 attribute
 
     m_indexBuffer = Buffer::CreateWithData(GL_ELEMENT_ARRAY_BUFFER, GL_STATIC_DRAW, indices, sizeof(uint32_t)*6);
 
