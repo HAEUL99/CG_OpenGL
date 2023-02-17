@@ -30,7 +30,8 @@ private:
     TextureUPtr m_texture2;
     VertexLayoutUPtr m_vertexLayout;
 
-    
+    // clear color
+    glm::vec4 m_clearColor { glm::vec4(0.1f, 0.2f, 0.3f, 0.0f) };
 
     // camera parameter
     bool m_cameraControl { false };
