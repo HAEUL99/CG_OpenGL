@@ -65,8 +65,8 @@ uint32_t indices[] = {
 
     m_indexBuffer = Buffer::CreateWithData(GL_ELEMENT_ARRAY_BUFFER, GL_STATIC_DRAW, indices, sizeof(uint32_t)*36);
 
-    ShaderPtr vertShader = Shader::CreateFromFile("./shader/texture.vs", GL_VERTEX_SHADER);
-    ShaderPtr fragShader = Shader::CreateFromFile("./shader/texture.fs", GL_FRAGMENT_SHADER);
+    ShaderPtr vertShader = Shader::CreateFromFile("./shader/lighting.vs", GL_VERTEX_SHADER);
+    ShaderPtr fragShader = Shader::CreateFromFile("./shader/lighting.fs", GL_FRAGMENT_SHADER);
 
     if (!vertShader || !fragShader)
         return false;
@@ -103,20 +103,6 @@ uint32_t indices[] = {
     m_program->SetUniform("tex", 0);
     m_program->SetUniform("tex2", 1);
 
-    
-
-    // x축으로 -55도 회전
-    auto model = glm::rotate(glm::mat4(1.0f), glm::radians(-55.0f), glm::vec3(1.0f, 0.0f, 0.0f));
-    // 카메라는 원점으로부터 z축 방향으로 -3만큼 떨어짐
-    auto view = glm::translate(glm::mat4(1.0f), glm::vec3(0.0f, 0.0f, -3.0f));
-    // 세로화각 45도의 원근 투영
-    auto projection = glm::perspective(glm::radians(45.0f), (float)m_width / (float)m_height, 0.01f, 20.0f);
-    //auto projection = glm::perspective(glm::radians(45.0f), (float)WINDOW_WIDTH / (float)WINDOW_HEIGHT, 0.01f, 10.0f);
-    auto transform = projection * view * model;
-    m_program->SetUniform("transform", transform);
-
-    
-
     return true;
 }
 
@@ -139,9 +125,19 @@ void Context::Render() {
             m_cameraPitch = 0.0f;
 
         }
+        if (ImGui::CollapsingHeader("light")) {
+        ImGui::ColorEdit3("light color", glm::value_ptr(m_lightColor));
+        ImGui::ColorEdit3("object color", glm::value_ptr(m_objectColor));
+        ImGui::SliderFloat("ambient strength", &m_ambientStrength, 0.0f, 1.0f);
+        }
 
     }
     ImGui::End();
+
+    m_program->Use();
+    m_program->SetUniform("lightColor", m_lightColor);
+    m_program->SetUniform("objectColor", m_objectColor);
+    m_program->SetUniform("ambientStrength", m_ambientStrength);
 
     
     std::vector<glm::vec3> cubePositions = {
