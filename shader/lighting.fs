@@ -7,6 +7,7 @@ out vec4 fragColor;
 //눈의 위치
 uniform vec3 viewPos;
 
+
 struct Light {
     vec3 position;
     vec3 direction;

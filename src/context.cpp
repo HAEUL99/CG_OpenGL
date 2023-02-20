@@ -62,6 +62,11 @@ bool Context::Init() {
 void Context::Render() {
 
     if (ImGui::Begin("ui window")) {
+        if (ImGui::CollapsingHeader("Object", ImGuiTreeNodeFlags_DefaultOpen)) {
+            ImGui::DragFloat3("l.position", glm::value_ptr(m_obj.position), 0.01f);
+            ImGui::DragFloat3("l.direction", glm::value_ptr(m_obj.direction), 0.01f);
+        }
+
         if(ImGui::ColorEdit4("clear color", glm::value_ptr(m_clearColor)))
         {
             glClearColor(m_clearColor.x, m_clearColor.y, m_clearColor.z, m_clearColor.w);
@@ -79,13 +84,13 @@ void Context::Render() {
 
         }
         if (ImGui::CollapsingHeader("light", ImGuiTreeNodeFlags_DefaultOpen)) {
-            ImGui::DragFloat3("l.position", glm::value_ptr(m_light.position), 0.01f);
-            ImGui::DragFloat3("l.direction", glm::value_ptr(m_light.direction), 0.01f);
-            ImGui::DragFloat("1.cutoff",glm::value_ptr(m_light.cutoff), 0.5f, 0.0f, 180.0f);
-            ImGui::DragFloat("1.distance", &m_light.distance, 0.5f, 0.0f, 3000.0f);
-            ImGui::ColorEdit3("l.ambient", glm::value_ptr(m_light.ambient));
-            ImGui::ColorEdit3("l.diffuse", glm::value_ptr(m_light.diffuse));
-            ImGui::ColorEdit3("l.specular", glm::value_ptr(m_light.specular));
+            ImGui::DragFloat3("2.position", glm::value_ptr(m_light.position), 0.01f);
+            ImGui::DragFloat3("2.direction", glm::value_ptr(m_light.direction), 0.01f);
+            ImGui::DragFloat("2.cutoff",glm::value_ptr(m_light.cutoff), 0.5f, 0.0f, 180.0f);
+            ImGui::DragFloat("2.distance", &m_light.distance, 0.5f, 0.0f, 3000.0f);
+            ImGui::ColorEdit3("2.ambient", glm::value_ptr(m_light.ambient));
+            ImGui::ColorEdit3("2.diffuse", glm::value_ptr(m_light.diffuse));
+            ImGui::ColorEdit3("2.specular", glm::value_ptr(m_light.specular));
         }
     
         if (ImGui::CollapsingHeader("material", ImGuiTreeNodeFlags_DefaultOpen)) {
@@ -122,6 +127,9 @@ void Context::Render() {
     
     m_program->Use();
     m_program->SetUniform("viewPos", m_cameraPos);
+    m_program->SetUniform("obj.position", m_obj.position);
+    m_program->SetUniform("obj.direction", m_obj.direction);
+
     m_program->SetUniform("light.position", m_light.position);
     m_program->SetUniform("light.direction", m_light.direction);
     m_program->SetUniform("light.cutoff", glm::vec2(
@@ -140,7 +148,9 @@ void Context::Render() {
     glActiveTexture(GL_TEXTURE1);
     m_material.specular->Bind();
 
-    auto modelTransform = glm::mat4(1.0f);
+    
+    // auto modelTransform = glm::mat4(1.0f);
+    auto modelTransform = glm::translate(glm::mat4(1.0f), glm::vec3(m_obj.position.x, m_obj.position.y, m_obj.position.z));
     auto transform = projection * view * modelTransform;
     m_program->SetUniform("transform", transform);
     m_program->SetUniform("modelTransform", modelTransform);

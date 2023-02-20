@@ -40,6 +40,14 @@ private:
     // clear color
     glm::vec4 m_clearColor { glm::vec4(0.1f, 0.2f, 0.3f, 0.0f) };
 
+    //obj parameter
+    struct Obj
+    {
+        glm::vec3 position { glm::vec3(0.0f, 0.0f, 0.0f) };
+        glm::vec3 direction { glm::vec3(0.0f, 0.0f, 0.0f) };
+    };
+    Obj m_obj;
+
     // light parameter
     struct Light {
         glm::vec3 position { glm::vec3(2.0f, 2.0f, 2.0f) };

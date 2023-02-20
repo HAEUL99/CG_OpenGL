@@ -12,6 +12,12 @@ out vec3 normal;
 out vec2 texCoord;
 out vec3 position;
 
+struct Obj {
+    vec3 position;
+    vec3 direction;
+};
+uniform Obj obj;
+
 void main() {
 
     gl_Position = transform * vec4(aPos, 1.0);
@@ -20,6 +26,6 @@ void main() {
     normal = (transpose(inverse(modelTransform)) * vec4(aNormal, 0.0)).xyz;
     texCoord = aTexCoord;
     //world coordinate 
-    position = (modelTransform * vec4(aPos, 1.0)).xyz;
+    position = (modelTransform * vec4(1.0)).xyz;
 
 }
