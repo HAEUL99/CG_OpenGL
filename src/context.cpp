@@ -122,7 +122,7 @@ void Context::Render() {
     m_simpleProgram->Use();
     m_simpleProgram->SetUniform("color", glm::vec4(m_light.ambient + m_light.diffuse, 1.0f));
     m_simpleProgram->SetUniform("transform", projection * view * lightModelTransform);
-    m_box->Draw();
+    m_box->Draw(m_simpleProgram.get());
 
     
     m_program->Use();
@@ -150,6 +150,7 @@ void Context::Render() {
 
     
     // auto modelTransform = glm::mat4(1.0f);
+    // obj tranform
     auto modelTransform = glm::translate(glm::mat4(1.0f), glm::vec3(m_obj.position.x, m_obj.position.y, m_obj.position.z));
     modelTransform = glm::rotate(modelTransform, glm::radians(m_obj.direction.x), glm::vec3(1.0, 0.0, 0.0));
     modelTransform = glm::rotate(modelTransform, glm::radians(m_obj.direction.y), glm::vec3(0.0, 1.0, 0.0));
@@ -157,7 +158,8 @@ void Context::Render() {
     auto transform = projection * view * modelTransform;
     m_program->SetUniform("transform", transform);
     m_program->SetUniform("modelTransform", modelTransform);
-    m_model->Draw();
+    m_model->Draw(m_program.get());
+    //m_model->Draw();
 }
 
 void Context::ProcessInput(GLFWwindow* window) {
