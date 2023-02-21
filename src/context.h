@@ -48,6 +48,14 @@ private:
     };
     Obj m_obj;
 
+    //obj 회전
+    bool m_objControl { false };
+    glm::vec2 m_prevMousePos_obj { glm::vec2(0.0f) };
+    float m_objPitch { 0.0f };
+    float m_objYaw { 0.0f };
+    float m_objRoll { 0.0f };
+
+
     // light parameter
     struct Light {
         glm::vec3 position { glm::vec3(2.0f, 2.0f, 2.0f) };
@@ -70,6 +78,7 @@ private:
 
     // camera parameter
     bool m_cameraControl { false };
+    //camera mouse(회전)
     glm::vec2 m_prevMousePos { glm::vec2(0.0f) };
 
     float m_cameraPitch { 0.0f };
@@ -78,6 +87,12 @@ private:
     glm::vec3 m_cameraPos { glm::vec3(0.0f, 0.0f, 3.0f) };
     glm::vec3 m_cameraFront { glm::vec3(0.0f, 0.0f, -1.0f) };
     glm::vec3 m_cameraUp { glm::vec3(0.0f, 1.0f, 0.0f) };
+
+    //camera near far
+    float m_cameraFovx {1.562f};
+    float m_cameraFovy {45.0f};
+    float m_cameraNear {0.01f};
+    float m_cameraFar {20.0f};
 
     int m_width {WINDOW_WIDTH};
     int m_height {WINDOW_HEIGHT};

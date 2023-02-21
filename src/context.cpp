@@ -53,8 +53,8 @@ bool Context::Init() {
     glBindTexture(GL_TEXTURE_2D, m_texture2->Get());
 
     m_program->Use();
-    m_program->SetUniform("tex", 0);
-    m_program->SetUniform("tex2", 1);
+    //m_program->SetUniform("tex", 0);
+    //m_program->SetUniform("tex2", 1);
 
     return true;
 }
@@ -64,9 +64,15 @@ void Context::Render() {
     if (ImGui::Begin("ui window")) {
         if (ImGui::CollapsingHeader("Object", ImGuiTreeNodeFlags_DefaultOpen)) {
             ImGui::DragFloat3("l.position", glm::value_ptr(m_obj.position), 0.01f);
-            ImGui::DragFloat3("l.direction", glm::value_ptr(m_obj.direction), 0.01f);
+            ImGui::DragFloat3("l.direction", glm::value_ptr(m_obj.direction), 0.03f);
         }
+        if(ImGui::Button("reset obj"))
+        {
+            m_obj.position = glm::vec3(0.0f, 0.0f, 3.0f);
+            m_obj.direction = glm::vec3(0.0f, 0.0f, 3.0f);
+     
 
+        }
         if(ImGui::ColorEdit4("clear color", glm::value_ptr(m_clearColor)))
         {
             glClearColor(m_clearColor.x, m_clearColor.y, m_clearColor.z, m_clearColor.w);
@@ -75,6 +81,10 @@ void Context::Render() {
         ImGui::DragFloat3("camera pos", glm::value_ptr(m_cameraPos), 0.01f);
         ImGui::DragFloat("camera vaw", &m_cameraYaw, 0.5f);
         ImGui::DragFloat("camera pitch", &m_cameraPitch, 0.5f, -89.0f, 89.0f);
+        ImGui::DragFloat("field of camera(vertical)", &m_cameraFovy, 0.5f);
+        ImGui::DragFloat("field of camera(horizontal)", &m_cameraFovx, 0.01f);
+        ImGui::DragFloat("near clipping plane", &m_cameraNear, 0.01f);
+        ImGui::DragFloat("far clipping plane", &m_cameraFar, 0.01f);
         ImGui::Separator();
         if(ImGui::Button("reset camera"))
         {
@@ -111,10 +121,11 @@ void Context::Render() {
     glm::rotate(glm::mat4(1.0f), glm::radians(m_cameraYaw), glm::vec3(0.0f, 1.0f, 0.0f)) *
     glm::rotate(glm::mat4(1.0f), glm::radians(m_cameraPitch), glm::vec3(1.0f, 0.0f, 0.0f)) *
     glm::vec4(0.0f, 0.0f, -1.0f, 0.0f);
-    auto projection = glm::perspective(glm::radians(45.0f),
-        (float)WINDOW_WIDTH / (float)WINDOW_HEIGHT, 0.01f, 20.0f);
-    //auto view = glm::translate(glm::mat4(1.0f), glm::vec3(0.0f, 0.0f, -3.0f));
-
+    //cf. fieldOfViewX = 2 * atan(tan(fieldOfViewY * 0.5) * aspect)
+    float aspect = (float)WINDOW_WIDTH / (float)WINDOW_HEIGHT;
+    m_cameraFovx = (2.0f * atanf(tanf(m_cameraFovy * 0.5f) * aspect));
+    //m_cameraFovy = 2 * atanf(tanf(m_cameraFovx* 0.5f) / aspect);
+    auto projection = glm::perspective(glm::radians(m_cameraFovy), aspect, m_cameraNear, m_cameraFar);
     auto view = glm::lookAt(m_cameraPos, m_cameraPos + m_cameraFront, m_cameraUp);
 
     // after computing projection and view matrix
@@ -151,10 +162,12 @@ void Context::Render() {
     
     // auto modelTransform = glm::mat4(1.0f);
     // obj tranform
-    auto modelTransform = glm::translate(glm::mat4(1.0f), glm::vec3(m_obj.position.x, m_obj.position.y, m_obj.position.z));
-    modelTransform = glm::rotate(modelTransform, glm::radians(m_obj.direction.x), glm::vec3(1.0, 0.0, 0.0));
-    modelTransform = glm::rotate(modelTransform, glm::radians(m_obj.direction.y), glm::vec3(0.0, 1.0, 0.0));
-    modelTransform = glm::rotate(modelTransform, glm::radians(m_obj.direction.z), glm::vec3(0.0, 0.0, 1.0));
+    auto transitionTransform = glm::translate(glm::mat4(1.0f), glm::vec3(m_obj.position.x, m_obj.position.y, m_obj.position.z));
+    auto rotateTansform = glm::rotate(glm::mat4(1.0f), glm::radians(m_obj.direction.x), glm::vec3(1.0, 0.0, 0.0));
+    rotateTansform = glm::rotate(rotateTansform, glm::radians(m_obj.direction.y), glm::vec3(0.0, 1.0, 0.0));
+    rotateTansform = glm::rotate(rotateTansform, glm::radians(m_obj.direction.z), glm::vec3(0.0, 0.0, 1.0));
+
+    auto modelTransform = transitionTransform + rotateTansform;
     auto transform = projection * view * modelTransform;
     m_program->SetUniform("transform", transform);
     m_program->SetUniform("modelTransform", modelTransform);
@@ -191,36 +204,75 @@ void Context::ProcessInput(GLFWwindow* window) {
 }
 
 void Context::MouseMove(double x, double y) {
-    if (!m_cameraControl)
+    if (!m_cameraControl && !m_objControl)
         return;
-    auto pos = glm::vec2((float)x, (float)y);
-    auto deltaPos = pos - m_prevMousePos;
+    if(m_cameraControl)
+    {
+        auto pos = glm::vec2((float)x, (float)y);
+        auto deltaPos = pos - m_prevMousePos;
 
-    const float cameraRotSpeed = 0.8f;
-    m_cameraYaw -= deltaPos.x * cameraRotSpeed;
-    m_cameraPitch -= deltaPos.y * cameraRotSpeed;
+        const float cameraRotSpeed = 0.8f;
+        m_cameraYaw -= deltaPos.x * cameraRotSpeed;
+        m_cameraPitch -= deltaPos.y * cameraRotSpeed;
 
-    // if (m_cameraYaw < 0.0f)   m_cameraYaw += 360.0f;
-    // if (m_cameraYaw > 360.0f) m_cameraYaw -= 360.0f;
-    if (m_cameraYaw < 89.0f)   m_cameraYaw += 89.0f;
-    if (m_cameraYaw > -89.0f) m_cameraYaw -= 89.0f;
+        // if (m_cameraYaw < 0.0f)   m_cameraYaw += 360.0f;
+        // if (m_cameraYaw > 360.0f) m_cameraYaw -= 360.0f;
+        if (m_cameraYaw < 89.0f)   m_cameraYaw += 89.0f;
+        if (m_cameraYaw > -89.0f) m_cameraYaw -= 89.0f;
 
-    if (m_cameraPitch > 89.0f)  m_cameraPitch = 89.0f;
-    if (m_cameraPitch < -89.0f) m_cameraPitch = -89.0f;
+        if (m_cameraPitch > 89.0f)  m_cameraPitch = 89.0f;
+        if (m_cameraPitch < -89.0f) m_cameraPitch = -89.0f;
 
-    m_prevMousePos = pos;     
+        m_prevMousePos = pos;     
+    }
+    if(m_objControl)
+    {
+        auto pos = glm::vec2((float)x, (float)y);
+        auto deltaPos = pos - m_prevMousePos_obj;
+
+        const float objRotSpeed = 0.8f;
+        m_obj.direction.x -= deltaPos.y * objRotSpeed;
+        m_obj.direction.y -= deltaPos.x * objRotSpeed;
+
+        if (m_obj.direction.x < 0.0f)   m_obj.direction.x += 360.0f;
+        if (m_obj.direction.x > 360.0f) m_obj.direction.x -= 360.0f;
+
+        if (m_obj.direction.y < 0.0f)  m_obj.direction.y += 360.0f;
+        if (m_obj.direction.y > 360.0f) m_obj.direction.y -= 360.0f;
+
+        //if (m_obj.direction.z < 0.0f)  m_obj.direction.z += 360.0f;
+        //if (m_obj.direction.z > 360.0f) m_obj.direction.z -= 360.0f;
+
+        m_prevMousePos_obj = pos; 
+
+    }
 }
 
 void Context::MouseButton(int button, int action, double x, double y) {
-  if (button == GLFW_MOUSE_BUTTON_RIGHT) {
-    if (action == GLFW_PRESS) {
-      // 마우스 조작 시작 시점에 현재 마우스 커서 위치 저장
-      m_prevMousePos = glm::vec2((float)x, (float)y);
-      m_cameraControl = true;
+    if (button == GLFW_MOUSE_BUTTON_RIGHT) {
+        if (action == GLFW_PRESS) {
+            // 마우스 조작 시작 시점에 현재 마우스 커서 위치 저장
+            m_prevMousePos = glm::vec2((float)x, (float)y);
+            m_cameraControl = true;
+        }
+        else if (action == GLFW_RELEASE) {
+            m_cameraControl = false;
+        }
     }
-    else if (action == GLFW_RELEASE) {
-      m_cameraControl = false;
+
+    if(button == GLFW_MOUSE_BUTTON_MIDDLE)
+    {
+        if(action == GLFW_PRESS)
+        {
+            m_prevMousePos_obj = glm::vec2((float)x, (float)y);
+            m_objControl = true;
+        }
+        else if(action == GLFW_RELEASE)
+        {
+            m_objControl = false;
+        }
+
     }
-  }
 }   
+
 
