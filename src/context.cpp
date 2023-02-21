@@ -65,6 +65,7 @@ void Context::Render() {
         if (ImGui::CollapsingHeader("Object", ImGuiTreeNodeFlags_DefaultOpen)) {
             ImGui::DragFloat3("l.position", glm::value_ptr(m_obj.position), 0.01f);
             ImGui::DragFloat3("l.direction", glm::value_ptr(m_obj.direction), 0.03f);
+            ImGui::DragFloat3("l.angle", glm::value_ptr(m_obj.angle), 0.03f);
         }
         if(ImGui::Button("reset obj"))
         {
@@ -163,11 +164,22 @@ void Context::Render() {
     // auto modelTransform = glm::mat4(1.0f);
     // obj tranform
     auto transitionTransform = glm::translate(glm::mat4(1.0f), glm::vec3(m_obj.position.x, m_obj.position.y, m_obj.position.z));
-    auto rotateTansform = glm::rotate(glm::mat4(1.0f), glm::radians(m_obj.direction.x), glm::vec3(1.0, 0.0, 0.0));
-    rotateTansform = glm::rotate(rotateTansform, glm::radians(m_obj.direction.y), glm::vec3(0.0, 1.0, 0.0));
-    rotateTansform = glm::rotate(rotateTansform, glm::radians(m_obj.direction.z), glm::vec3(0.0, 0.0, 1.0));
+    auto rotateTansform = glm::mat4(1.0f);
+    auto modelTransform = glm::mat4(1.0f);
+    if(m_objWorldControl)
+    {
+        rotateTansform = glm::rotate(glm::mat4(1.0f), glm::radians(m_obj.angle.x), glm::vec3(1.0, 0.0, 0.0));
+        rotateTansform = glm::rotate(rotateTansform, glm::radians(m_obj.angle.y), glm::vec3(0.0, 1.0, 0.0));
+        modelTransform = rotateTansform * transitionTransform;
+    }
+    else
+    {
+        rotateTansform = glm::rotate(glm::mat4(1.0f), glm::radians(m_obj.direction.x), glm::vec3(1.0, 0.0, 0.0));
+        rotateTansform = glm::rotate(rotateTansform, glm::radians(m_obj.direction.y), glm::vec3(0.0, 1.0, 0.0));
+        rotateTansform = glm::rotate(rotateTansform, glm::radians(m_obj.direction.z), glm::vec3(0.0, 0.0, 1.0));
+        modelTransform = transitionTransform * rotateTansform;
+    }
 
-    auto modelTransform = transitionTransform + rotateTansform;
     auto transform = projection * view * modelTransform;
     m_program->SetUniform("transform", transform);
     m_program->SetUniform("modelTransform", modelTransform);
@@ -204,7 +216,7 @@ void Context::ProcessInput(GLFWwindow* window) {
 }
 
 void Context::MouseMove(double x, double y) {
-    if (!m_cameraControl && !m_objControl)
+    if (!m_cameraControl && !m_objControl && !m_objWorldControl)
         return;
     if(m_cameraControl)
     {
@@ -246,6 +258,27 @@ void Context::MouseMove(double x, double y) {
         m_prevMousePos_obj = pos; 
 
     }
+    if(m_objWorldControl)
+    {
+        auto pos = glm::vec2((float)x, (float)y);
+        auto deltaPos = pos - m_prevMousePos_objWorld;
+
+        const float objRotSpeed = 0.8f;
+        m_obj.angle.x -= deltaPos.y * objRotSpeed;
+        m_obj.angle.y -= deltaPos.x * objRotSpeed;
+
+        if (m_obj.angle.x < 0.0f)   m_obj.angle.x += 360.0f;
+        if (m_obj.angle.x > 360.0f) m_obj.angle.x -= 360.0f;
+
+        if (m_obj.angle.y < 0.0f)  m_obj.angle.y += 360.0f;
+        if (m_obj.angle.y > 360.0f) m_obj.angle.y -= 360.0f;
+
+        //if (m_obj.direction.z < 0.0f)  m_obj.direction.z += 360.0f;
+        //if (m_obj.direction.z > 360.0f) m_obj.direction.z -= 360.0f;
+
+        m_prevMousePos_objWorld = pos; 
+
+    }
 }
 
 void Context::MouseButton(int button, int action, double x, double y) {
@@ -270,6 +303,20 @@ void Context::MouseButton(int button, int action, double x, double y) {
         else if(action == GLFW_RELEASE)
         {
             m_objControl = false;
+        }
+
+    }
+
+    if(button == GLFW_MOUSE_BUTTON_LEFT)
+    {
+        if(action == GLFW_PRESS)
+        {
+            m_prevMousePos_objWorld = glm::vec2((float)x, (float)y);
+            m_objWorldControl = true;
+        }
+        else if(action == GLFW_RELEASE)
+        {
+            m_objWorldControl = false;
         }
 
     }

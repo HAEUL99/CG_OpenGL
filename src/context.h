@@ -45,6 +45,7 @@ private:
     {
         glm::vec3 position { glm::vec3(0.0f, 0.0f, 0.0f) };
         glm::vec3 direction { glm::vec3(0.0f, 0.0f, 0.0f) };
+        glm::vec3 angle { glm::vec3(0.0f, 0.0f, 0.0f) };
     };
     Obj m_obj;
 
@@ -54,6 +55,10 @@ private:
     float m_objPitch { 0.0f };
     float m_objYaw { 0.0f };
     float m_objRoll { 0.0f };
+
+    //world
+    bool m_objWorldControl { false };
+    glm::vec2 m_prevMousePos_objWorld { glm::vec2(0.0f) };
 
 
     // light parameter
