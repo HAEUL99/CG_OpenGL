@@ -188,8 +188,14 @@ void Context::Render() {
 }
 
 void Context::ProcessInput(GLFWwindow* window) {
-    if (!m_cameraControl)
+
+
+    if (!m_cameraControl && !m_objWorldControl)
         return;
+
+    if(glfwGetKey(window, GLFW_KEY_SPACE) == GLFW_PRESS)
+    m_objWorldControlKey = true;
+    
     const float cameraSpeed = 0.05f;
     if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS)
     m_cameraPos += cameraSpeed * m_cameraFront;
@@ -207,9 +213,11 @@ void Context::ProcessInput(GLFWwindow* window) {
     m_cameraPos += cameraSpeed * cameraUp;
     if (glfwGetKey(window, GLFW_KEY_Q) == GLFW_PRESS)
     m_cameraPos -= cameraSpeed * cameraUp;
-    }
+    
 
-    void Context::Reshape(int width, int height) {
+}
+
+ void Context::Reshape(int width, int height) {
     m_width = width;
     m_height = height;
     glViewport(0, 0, m_width, m_height);
@@ -258,7 +266,7 @@ void Context::MouseMove(double x, double y) {
         m_prevMousePos_obj = pos; 
 
     }
-    if(m_objWorldControl)
+    if(m_objWorldControl && m_objWorldControlKey)
     {
         auto pos = glm::vec2((float)x, (float)y);
         auto deltaPos = pos - m_prevMousePos_objWorld;

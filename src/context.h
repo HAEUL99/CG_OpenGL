@@ -58,7 +58,9 @@ private:
 
     //world
     bool m_objWorldControl { false };
+    bool m_objWorldControlKey {false};
     glm::vec2 m_prevMousePos_objWorld { glm::vec2(0.0f) };
+
 
 
     // light parameter
