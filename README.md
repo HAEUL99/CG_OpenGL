@@ -7,6 +7,7 @@ Computer Graphics in 2023 Winter
 - Framework: Visual Studio Code
 
 ## Project Overview
+- Read a obj mesh file
 - Translate the model/ camera in x, y and z directions
 - Rotate the model/ camera around x, y, and z axes
 - rotate the model/ camera according to the moving direction and distance of the mouse
@@ -17,8 +18,16 @@ Computer Graphics in 2023 Winter
   - I made code to rotate the model around world x, y axes. (second function was local x, y, and z axes)
 
 ## Game Routine
-- Login and Lobby
+- Model
+- Camera
   
+## How to compile
+- download cmake 
+- 디렉토리로 이동 
+  -$ cd opengl_example-csc4870_assignment1
+- 빌드 
+  -$ cmake . -Bbuild
+  -$ cmake --build build
 
 ## Reference 
 - GitHub: [opengl course](https://github.com/rinthel/opengl_course)
