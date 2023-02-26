@@ -3,7 +3,7 @@ cmake_minimum_required(VERSION 3.13)
 set(CMAKE_PROJECT_NAME opengl_example)
 set(CMAKE_CXX_STANDARD 17)
 
-set(WINDOW_NAME "opengl example!")
+set(WINDOW_NAME "CSC5870_assignment01")
 set(WINDOW_WIDTH 960)
 set(WINDOW_HEIGHT 540)
 

@@ -202,8 +202,11 @@ void Context::ProcessInput(GLFWwindow* window) {
         return;
 
     if(glfwGetKey(window, GLFW_KEY_SPACE) == GLFW_PRESS)
-    m_objWorldControlKey = true;
-    
+        m_objWorldControlKey = true;
+    if(glfwGetKey(window, GLFW_KEY_SPACE) == GLFW_RELEASE)
+        m_objWorldControlKey = false;
+ 
+
     const float cameraSpeed = 0.05f;
     if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS)
     m_cameraPos += cameraSpeed * m_cameraFront;
