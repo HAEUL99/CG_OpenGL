@@ -19,7 +19,10 @@ Computer Graphics in 2023 Winter
 
 ## Game Routine
 - Model
+  - ![vllo 2](https://user-images.githubusercontent.com/71214577/221396051-5eca52f6-4d07-419d-9360-0f6bae228c26.GIF)
 - Camera
+  - ![vllo](https://user-images.githubusercontent.com/71214577/221396001-bfd278b4-3353-4659-b0ba-9272084f67e2.GIF)
+
   
 ## How to compile
 - download cmake 
