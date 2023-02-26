@@ -2,6 +2,7 @@
 #include "image.h"
 #include <imgui.h>
 
+
 //브랜치테스트
 ContextUPtr Context::Create() {
     auto context = ContextUPtr(new Context());
@@ -13,15 +14,19 @@ ContextUPtr Context::Create() {
 bool Context::Init() {
     m_box = Mesh::CreateBox();
 
-    m_model = Model::Load("./model/backpack.obj");
+    //m_model = Model::Load("./model/backpack.obj");
+    m_model = Model::Load("d:/git/CG/opengl_example/model/backpack.obj");
+
     if (!m_model)
         return false;
 
-    m_simpleProgram = Program::Create("./shader/simple.vs", "./shader/simple.fs");
+    //m_simpleProgram = Program::Create("./shader/simple.vs", "./shader/simple.fs");
+    m_simpleProgram = Program::Create("d:/git/CG/opengl_example/shader/simple.vs", "d:/git/CG/opengl_example/shader/simple.fs");
     if (!m_simpleProgram)
         return false;
 
-    m_program = Program::Create("./shader/lighting.vs", "./shader/lighting.fs");
+    //m_program = Program::Create("./shader/lighting.vs", "./shader/lighting.fs");
+    m_program = Program::Create("d:/git/CG/opengl_example/shader/lighting.vs", "d:/git/CG/opengl_example/shader/lighting.fs");
     if (!m_program)
         return false;
 
@@ -29,14 +34,16 @@ bool Context::Init() {
     glClearColor(0.0f, 0.1f, 0.2f, 0.0f); // 컬러 프레임버퍼 화면을 클리어할 색상 지정
 
     
-    auto image = Image::Load("./image/container.jpg");
+    //auto image = Image::Load("./image/container.jpg");
+    auto image = Image::Load("d:/git/CG/opengl_example/image/container.jpg");
     if (!image) 
        return false;
     SPDLOG_INFO("image: {}x{}, {} channels", image->GetWidth(), image->GetHeight(), image->GetChannelCount());
 
     m_texture = Texture::CreateFromImage(image.get()); //unique 포인터 -> 포인터
 
-    auto image2 = Image::Load("./image/awesomeface.png");
+    //auto image2 = Image::Load("./image/awesomeface.png");
+    auto image2 = Image::Load("d:/git/CG/opengl_example/image/awesomeface.png");
     m_texture2 = Texture::CreateFromImage(image2.get());
 
     // m_material.diffuse = Texture::CreateFromImage(Image::Load("./image/container2.png").get());
@@ -95,20 +102,20 @@ void Context::Render() {
             m_cameraPitch = 0.0f;
 
         }
-        if (ImGui::CollapsingHeader("light", ImGuiTreeNodeFlags_DefaultOpen)) {
-            ImGui::DragFloat3("2.position", glm::value_ptr(m_light.position), 0.01f);
-            ImGui::DragFloat3("2.direction", glm::value_ptr(m_light.direction), 0.01f);
-            ImGui::DragFloat("2.cutoff",glm::value_ptr(m_light.cutoff), 0.5f, 0.0f, 180.0f);
-            ImGui::DragFloat("2.distance", &m_light.distance, 0.5f, 0.0f, 3000.0f);
-            ImGui::ColorEdit3("2.ambient", glm::value_ptr(m_light.ambient));
-            ImGui::ColorEdit3("2.diffuse", glm::value_ptr(m_light.diffuse));
-            ImGui::ColorEdit3("2.specular", glm::value_ptr(m_light.specular));
-        }
+        // if (ImGui::CollapsingHeader("light", ImGuiTreeNodeFlags_DefaultOpen)) {
+        //     ImGui::DragFloat3("2.position", glm::value_ptr(m_light.position), 0.01f);
+        //     ImGui::DragFloat3("2.direction", glm::value_ptr(m_light.direction), 0.01f);
+        //     ImGui::DragFloat("2.cutoff",glm::value_ptr(m_light.cutoff), 0.5f, 0.0f, 180.0f);
+        //     ImGui::DragFloat("2.distance", &m_light.distance, 0.5f, 0.0f, 3000.0f);
+        //     ImGui::ColorEdit3("2.ambient", glm::value_ptr(m_light.ambient));
+        //     ImGui::ColorEdit3("2.diffuse", glm::value_ptr(m_light.diffuse));
+        //     ImGui::ColorEdit3("2.specular", glm::value_ptr(m_light.specular));
+        // }
     
-        if (ImGui::CollapsingHeader("material", ImGuiTreeNodeFlags_DefaultOpen)) {
-            ImGui::DragFloat("m.shininess", &m_material.shininess, 1.0f, 1.0f, 256.0f);
-        }
-        ImGui::Checkbox("animation", &m_animation);
+        // if (ImGui::CollapsingHeader("material", ImGuiTreeNodeFlags_DefaultOpen)) {
+        //     ImGui::DragFloat("m.shininess", &m_material.shininess, 1.0f, 1.0f, 256.0f);
+        // }
+        // ImGui::Checkbox("animation", &m_animation);
 
     }
     ImGui::End();
@@ -131,11 +138,11 @@ void Context::Render() {
     auto view = glm::lookAt(m_cameraPos, m_cameraPos + m_cameraFront, m_cameraUp);
 
     // after computing projection and view matrix
-    auto lightModelTransform = glm::translate(glm::mat4(1.0), m_light.position) * glm::scale(glm::mat4(1.0), glm::vec3(0.1f));
-    m_simpleProgram->Use();
-    m_simpleProgram->SetUniform("color", glm::vec4(m_light.ambient + m_light.diffuse, 1.0f));
-    m_simpleProgram->SetUniform("transform", projection * view * lightModelTransform);
-    m_box->Draw(m_simpleProgram.get());
+    // auto lightModelTransform = glm::translate(glm::mat4(1.0), m_light.position) * glm::scale(glm::mat4(1.0), glm::vec3(0.1f));
+    // m_simpleProgram->Use();
+    // m_simpleProgram->SetUniform("color", glm::vec4(m_light.ambient + m_light.diffuse, 1.0f));
+    // m_simpleProgram->SetUniform("transform", projection * view * lightModelTransform);
+    // m_box->Draw(m_simpleProgram.get());
 
     
     m_program->Use();
@@ -143,12 +150,12 @@ void Context::Render() {
     m_program->SetUniform("obj.position", m_obj.position);
     m_program->SetUniform("obj.direction", m_obj.direction);
 
-    m_program->SetUniform("light.position", m_light.position);
+    // m_program->SetUniform("light.position", m_light.position);
     m_program->SetUniform("light.direction", m_light.direction);
-    m_program->SetUniform("light.cutoff", glm::vec2(
-    cosf(glm::radians(m_light.cutoff[0])),
-    cosf(glm::radians(m_light.cutoff[0] + m_light.cutoff[1]))));
-    m_program->SetUniform("light.attenuation", GetAttenuationCoeff(m_light.distance));
+    // m_program->SetUniform("light.cutoff", glm::vec2(
+    // cosf(glm::radians(m_light.cutoff[0])),
+    // cosf(glm::radians(m_light.cutoff[0] + m_light.cutoff[1]))));
+    //m_program->SetUniform("light.attenuation", GetAttenuationCoeff(m_light.distance));
     m_program->SetUniform("light.ambient", m_light.ambient);
     m_program->SetUniform("light.diffuse", m_light.diffuse);
     m_program->SetUniform("light.specular", m_light.specular);
@@ -162,7 +169,7 @@ void Context::Render() {
     m_material.specular->Bind();
 
     
-    // auto modelTransform = glm::mat4(1.0f);
+
     // obj tranform
     auto transitionTransform = glm::translate(glm::mat4(1.0f), glm::vec3(m_obj.position.x, m_obj.position.y, m_obj.position.z));
     auto rotateTansform = glm::mat4(1.0f);
@@ -185,7 +192,7 @@ void Context::Render() {
     m_program->SetUniform("transform", transform);
     m_program->SetUniform("modelTransform", modelTransform);
     m_model->Draw(m_program.get());
-    //m_model->Draw();
+
 }
 
 void Context::ProcessInput(GLFWwindow* window) {
