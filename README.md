@@ -23,11 +23,13 @@ Computer Graphics in 2023 Winter
   
 ## How to compile
 - download cmake 
-- 디렉토리로 이동 
-  -$ cd opengl_example-csc4870_assignment1
-- 빌드 
-  -$ cmake . -Bbuild
-  -$ cmake --build build
+- move to the directory(if you download it in desktop)
+  - $ cd  ~/desktop/opengl_example-csc4870_assignment1
+- build
+  - $ cmake . -Bbuild
+  - $ cmake --build build
+- run
+  - $ ./build/Debug/opengl_example
 
 ## Reference 
 - GitHub: [opengl course](https://github.com/rinthel/opengl_course)
