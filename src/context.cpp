@@ -14,19 +14,19 @@ ContextUPtr Context::Create() {
 bool Context::Init() {
     m_box = Mesh::CreateBox();
 
-    //m_model = Model::Load("./model/backpack.obj");
-    m_model = Model::Load("d:/git/CG/opengl_example/model/backpack.obj");
+    m_model = Model::Load("./model/backpack.obj");
+    //m_model = Model::Load("d:/git/CG/opengl_example/model/backpack.obj");
 
     if (!m_model)
         return false;
 
-    //m_simpleProgram = Program::Create("./shader/simple.vs", "./shader/simple.fs");
-    m_simpleProgram = Program::Create("d:/git/CG/opengl_example/shader/simple.vs", "d:/git/CG/opengl_example/shader/simple.fs");
+    m_simpleProgram = Program::Create("./shader/simple.vs", "./shader/simple.fs");
+    //m_simpleProgram = Program::Create("d:/git/CG/opengl_example/shader/simple.vs", "d:/git/CG/opengl_example/shader/simple.fs");
     if (!m_simpleProgram)
         return false;
 
-    //m_program = Program::Create("./shader/lighting.vs", "./shader/lighting.fs");
-    m_program = Program::Create("d:/git/CG/opengl_example/shader/lighting.vs", "d:/git/CG/opengl_example/shader/lighting.fs");
+    m_program = Program::Create("./shader/lighting.vs", "./shader/lighting.fs");
+    //m_program = Program::Create("d:/git/CG/opengl_example/shader/lighting.vs", "d:/git/CG/opengl_example/shader/lighting.fs");
     if (!m_program)
         return false;
 
@@ -34,16 +34,16 @@ bool Context::Init() {
     glClearColor(0.0f, 0.1f, 0.2f, 0.0f); // 컬러 프레임버퍼 화면을 클리어할 색상 지정
 
     
-    //auto image = Image::Load("./image/container.jpg");
-    auto image = Image::Load("d:/git/CG/opengl_example/image/container.jpg");
+    auto image = Image::Load("./image/container.jpg");
+    //auto image = Image::Load("d:/git/CG/opengl_example/image/container.jpg");
     if (!image) 
        return false;
     SPDLOG_INFO("image: {}x{}, {} channels", image->GetWidth(), image->GetHeight(), image->GetChannelCount());
 
     m_texture = Texture::CreateFromImage(image.get()); //unique 포인터 -> 포인터
 
-    //auto image2 = Image::Load("./image/awesomeface.png");
-    auto image2 = Image::Load("d:/git/CG/opengl_example/image/awesomeface.png");
+    auto image2 = Image::Load("./image/awesomeface.png");
+    //auto image2 = Image::Load("d:/git/CG/opengl_example/image/awesomeface.png");
     m_texture2 = Texture::CreateFromImage(image2.get());
 
     // m_material.diffuse = Texture::CreateFromImage(Image::Load("./image/container2.png").get());
@@ -61,8 +61,7 @@ bool Context::Init() {
     glBindTexture(GL_TEXTURE_2D, m_texture2->Get());
 
     m_program->Use();
-    //m_program->SetUniform("tex", 0);
-    //m_program->SetUniform("tex2", 1);
+
 
     return true;
 }
