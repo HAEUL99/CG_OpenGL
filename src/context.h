@@ -36,7 +36,8 @@ private:
 
     // animation
     bool m_animation { true };
-
+    bool fovx {false};
+    bool fovy {true};
     // clear color
     glm::vec4 m_clearColor { glm::vec4(0.1f, 0.2f, 0.3f, 0.0f) };
 

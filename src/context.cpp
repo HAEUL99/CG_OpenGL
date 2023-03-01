@@ -2,7 +2,7 @@
 #include "image.h"
 #include <imgui.h>
 
-
+const double pi = std::acos(-1);
 //브랜치테스트
 ContextUPtr Context::Create() {
     auto context = ContextUPtr(new Context());
@@ -89,6 +89,8 @@ void Context::Render() {
         ImGui::DragFloat3("camera pos", glm::value_ptr(m_cameraPos), 0.01f);
         ImGui::DragFloat("camera vaw", &m_cameraYaw, 0.5f);
         ImGui::DragFloat("camera pitch", &m_cameraPitch, 0.5f, -89.0f, 89.0f);
+        ImGui::Checkbox("m_cameraFovy", &fovy);
+        ImGui::Checkbox("m_cameraFovx", &fovx);
         ImGui::DragFloat("field of camera(vertical)", &m_cameraFovy, 0.5f);
         ImGui::DragFloat("field of camera(horizontal)", &m_cameraFovx, 0.01f);
         ImGui::DragFloat("near clipping plane", &m_cameraNear, 0.01f);
@@ -114,7 +116,7 @@ void Context::Render() {
         // if (ImGui::CollapsingHeader("material", ImGuiTreeNodeFlags_DefaultOpen)) {
         //     ImGui::DragFloat("m.shininess", &m_material.shininess, 1.0f, 1.0f, 256.0f);
         // }
-        // ImGui::Checkbox("animation", &m_animation);
+        //ImGui::Checkbox("animation", &m_animation);
 
     }
     ImGui::End();
@@ -131,9 +133,18 @@ void Context::Render() {
     glm::vec4(0.0f, 0.0f, -1.0f, 0.0f);
     //cf. fieldOfViewX = 2 * atan(tan(fieldOfViewY * 0.5) * aspect)
     float aspect = (float)WINDOW_WIDTH / (float)WINDOW_HEIGHT;
-    m_cameraFovx = (2.0f * atanf(tanf(m_cameraFovy * 0.5f) * aspect));
-    //m_cameraFovy = 2 * atanf(tanf(m_cameraFovx* 0.5f) / aspect);
-    auto projection = glm::perspective(glm::radians(m_cameraFovy), aspect, m_cameraNear, m_cameraFar);
+    auto projection = glm::mat4(1.0);
+    if(fovx == true)
+    {
+        m_cameraFovy = atanf(tanf(m_cameraFovx * 0.5f * pi/180)) * 180/pi;
+        projection = glm::perspective(glm::radians(m_cameraFovy), aspect, m_cameraNear, m_cameraFar);
+    }
+    if(fovy == true)
+    {
+        projection = glm::perspective(glm::radians(m_cameraFovy), aspect, m_cameraNear, m_cameraFar);
+    }
+    //m_cameraFovy = atanf(tanf(m_cameraFovx * 0.5f * pi/180)) * 180/pi;
+    //auto projection = glm::perspective(glm::radians(m_cameraFovy), aspect, m_cameraNear, m_cameraFar);
     auto view = glm::lookAt(m_cameraPos, m_cameraPos + m_cameraFront, m_cameraUp);
 
     // after computing projection and view matrix
