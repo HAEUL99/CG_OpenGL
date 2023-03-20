@@ -62,16 +62,16 @@ void Model::ProcessMesh(aiMesh* mesh, const aiScene* scene) {
     for (uint32_t i = 0; i < mesh->mNumVertices; i++) {
     auto& v = vertices[i];
     v.position = glm::vec3(mesh->mVertices[i].x, mesh->mVertices[i].y, mesh->mVertices[i].z);
-    v.normal = glm::vec3(mesh->mNormals[i].x, mesh->mNormals[i].y, mesh->mNormals[i].z);
-    v.texCoord = glm::vec2(mesh->mTextureCoords[0][i].x, mesh->mTextureCoords[0][i].y);
+    //v.normal = glm::vec3(mesh->mNormals[i].x, mesh->mNormals[i].y, mesh->mNormals[i].z);
+    //v.texCoord = glm::vec2(mesh->mTextureCoords[0][i].x, mesh->mTextureCoords[0][i].y);
     }
 
     std::vector<uint32_t> indices;
     indices.resize(mesh->mNumFaces * 3);
     for (uint32_t i = 0; i < mesh->mNumFaces; i++) {
-    indices[3*i  ] = mesh->mFaces[i].mIndices[0];
-    indices[3*i+1] = mesh->mFaces[i].mIndices[1];
-    indices[3*i+2] = mesh->mFaces[i].mIndices[2];
+    indices[i * 3] = mesh->mFaces[i].mIndices[0];
+    indices[i * 3+1] = mesh->mFaces[i].mIndices[1];
+    indices[i * 3+2] = mesh->mFaces[i].mIndices[2];
     }
 
     auto glMesh = Mesh::Create(vertices, indices, GL_TRIANGLES);

@@ -12,7 +12,7 @@ ContextUPtr Context::Create() {
 bool Context::Init() {
     m_box = Mesh::CreateBox();
 
-    m_model = Model::Load("./model/backpack.obj");
+    m_model = Model::Load("./model/cow.obj");
     if (!m_model)
         return false;
 
@@ -112,7 +112,7 @@ void Context::Render() {
     glm::rotate(glm::mat4(1.0f), glm::radians(m_cameraPitch), glm::vec3(1.0f, 0.0f, 0.0f)) *
     glm::vec4(0.0f, 0.0f, -1.0f, 0.0f);
     auto projection = glm::perspective(glm::radians(45.0f),
-        (float)WINDOW_WIDTH / (float)WINDOW_HEIGHT, 0.01f, 20.0f);
+        (float)WINDOW_WIDTH / (float)WINDOW_HEIGHT, 0.01f, 30.0f);
     //auto view = glm::translate(glm::mat4(1.0f), glm::vec3(0.0f, 0.0f, -3.0f));
 
     auto view = glm::lookAt(m_cameraPos, m_cameraPos + m_cameraFront, m_cameraUp);
