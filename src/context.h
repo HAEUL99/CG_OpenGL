@@ -33,6 +33,7 @@ private:
     TextureUPtr m_texture;
     TextureUPtr m_texture2;
  
+    
 
     // animation
     bool m_animation { true };
@@ -60,13 +61,18 @@ private:
     };
     Light m_light;
 
+    // struct Material {
+    //     TextureUPtr diffuse;
+    //     TextureUPtr specular;
+    //     float shininess { 32.0f };
+    // };
+    // Material m_material;
     // material parameter
-    struct Material {
-        TextureUPtr diffuse;
-        TextureUPtr specular;
-        float shininess { 32.0f };
-    };
-    Material m_material;
+
+    MaterialPtr m_planeMaterial;
+    MaterialPtr m_box1Material;
+    MaterialPtr m_box2Material;
+
 
     // camera parameter
     bool m_cameraControl { false };
