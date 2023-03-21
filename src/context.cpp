@@ -27,34 +27,44 @@ bool Context::Init() {
 
     glClearColor(0.0f, 0.1f, 0.2f, 0.0f); // 컬러 프레임버퍼 화면을 클리어할 색상 지정
 
+    TexturePtr grayTexture = Texture::CreateFromImage(
+    Image::CreateSingleColorImage(4, 4, glm::vec4(0.5f, 0.5f, 0.5f, 1.0f)).get());
     
-    auto image = Image::Load("./image/container.jpg");
-    if (!image) 
-       return false;
-    SPDLOG_INFO("image: {}x{}, {} channels", image->GetWidth(), image->GetHeight(), image->GetChannelCount());
+    m_planeMaterial = Material::Create();
+    m_planeMaterial->diffuse = Texture::CreateFromImage(Image::Load("./image/marble.jpg").get());
+    m_planeMaterial->specular = grayTexture;
+    m_planeMaterial->shininess = 128.0f;
 
-    m_texture = Texture::CreateFromImage(image.get()); //unique 포인터 -> 포인터
+    m_light1.position = glm::vec3(0.0f, 0.0f, 0.0f);
+    m_light2.position = glm::vec3(-2.0f, -2.0f, -2.0f);
+    
+    // auto image = Image::Load("./image/container.jpg");
+    // if (!image) 
+    //    return false;
+    // SPDLOG_INFO("image: {}x{}, {} channels", image->GetWidth(), image->GetHeight(), image->GetChannelCount());
 
-    auto image2 = Image::Load("./image/awesomeface.png");
-    m_texture2 = Texture::CreateFromImage(image2.get());
+    // m_texture = Texture::CreateFromImage(image.get()); //unique 포인터 -> 포인터
 
-    // m_material.diffuse = Texture::CreateFromImage(Image::Load("./image/container2.png").get());
-	// m_material.specular = Texture::CreateFromImage( Image::Load("./image/container2_specular.png").get());
+    // auto image2 = Image::Load("./image/awesomeface.png");
+    // m_texture2 = Texture::CreateFromImage(image2.get());
 
-    m_material.diffuse = Texture::CreateFromImage(Image::CreateSingleColorImage(4, 4,
-    glm::vec4(1.0f, 1.0f, 1.0f, 1.0f)).get());
+    // // m_material.diffuse = Texture::CreateFromImage(Image::Load("./image/container2.png").get());
+	// // m_material.specular = Texture::CreateFromImage( Image::Load("./image/container2_specular.png").get());
 
-    m_material.specular = Texture::CreateFromImage(Image::CreateSingleColorImage(4, 4,
-    glm::vec4(0.5f, 0.5f, 0.5f, 1.0f)).get());
+    // m_material.diffuse = Texture::CreateFromImage(Image::CreateSingleColorImage(4, 4,
+    // glm::vec4(1.0f, 1.0f, 1.0f, 1.0f)).get());
 
-    glActiveTexture(GL_TEXTURE0);
-    glBindTexture(GL_TEXTURE_2D, m_texture->Get());
-    glActiveTexture(GL_TEXTURE1);
-    glBindTexture(GL_TEXTURE_2D, m_texture2->Get());
+    // m_material.specular = Texture::CreateFromImage(Image::CreateSingleColorImage(4, 4,
+    // glm::vec4(0.5f, 0.5f, 0.5f, 1.0f)).get());
 
-    m_program->Use();
-    m_program->SetUniform("tex", 0);
-    m_program->SetUniform("tex2", 1);
+    // glActiveTexture(GL_TEXTURE0);
+    // glBindTexture(GL_TEXTURE_2D, m_texture->Get());
+    // glActiveTexture(GL_TEXTURE1);
+    // glBindTexture(GL_TEXTURE_2D, m_texture2->Get());
+
+    // m_program->Use();
+    // m_program->SetUniform("tex", 0);
+    // m_program->SetUniform("tex2", 1);
 
     return true;
 }
@@ -63,8 +73,8 @@ void Context::Render() {
 
     if (ImGui::Begin("ui window")) {
         if (ImGui::CollapsingHeader("Object", ImGuiTreeNodeFlags_DefaultOpen)) {
-            ImGui::DragFloat3("l.position", glm::value_ptr(m_obj.position), 0.01f);
-            ImGui::DragFloat3("l.direction", glm::value_ptr(m_obj.direction), 0.01f);
+            ImGui::DragFloat3("position", glm::value_ptr(m_obj.position), 0.01f);
+            ImGui::DragFloat3("direction", glm::value_ptr(m_obj.direction), 0.01f);
         }
 
         if(ImGui::ColorEdit4("clear color", glm::value_ptr(m_clearColor)))
@@ -83,18 +93,20 @@ void Context::Render() {
             m_cameraPitch = 0.0f;
 
         }
-        if (ImGui::CollapsingHeader("light", ImGuiTreeNodeFlags_DefaultOpen)) {
-            ImGui::DragFloat3("2.position", glm::value_ptr(m_light.position), 0.01f);
-            ImGui::DragFloat3("2.direction", glm::value_ptr(m_light.direction), 0.01f);
-            ImGui::DragFloat("2.cutoff",glm::value_ptr(m_light.cutoff), 0.5f, 0.0f, 180.0f);
-            ImGui::DragFloat("2.distance", &m_light.distance, 0.5f, 0.0f, 3000.0f);
-            ImGui::ColorEdit3("2.ambient", glm::value_ptr(m_light.ambient));
-            ImGui::ColorEdit3("2.diffuse", glm::value_ptr(m_light.diffuse));
-            ImGui::ColorEdit3("2.specular", glm::value_ptr(m_light.specular));
+        if (ImGui::CollapsingHeader("1.light", ImGuiTreeNodeFlags_DefaultOpen)) {
+            ImGui::DragFloat3("l.direction", glm::value_ptr(m_light.position), 0.01f);
+            ImGui::DragFloat("1.distance", &m_light.distance, 0.5f, 0.0f, 3000.0f);
+            ImGui::ColorEdit3("l.ambient", glm::value_ptr(m_light.ambient));
+            ImGui::ColorEdit3("l.diffuse", glm::value_ptr(m_light.diffuse));
+            ImGui::ColorEdit3("l.specular", glm::value_ptr(m_light.specular));
         }
+
+       
+
+
     
         if (ImGui::CollapsingHeader("material", ImGuiTreeNodeFlags_DefaultOpen)) {
-            ImGui::DragFloat("m.shininess", &m_material.shininess, 1.0f, 1.0f, 256.0f);
+            //ImGui::DragFloat("m.shininess", &m_material.shininess, 1.0f, 1.0f, 256.0f);
         }
         ImGui::Checkbox("animation", &m_animation);
 
@@ -130,36 +142,133 @@ void Context::Render() {
     m_program->SetUniform("obj.position", m_obj.position);
     m_program->SetUniform("obj.direction", m_obj.direction);
 
+    //light    
     m_program->SetUniform("light.position", m_light.position);
-    m_program->SetUniform("light.direction", m_light.direction);
-    m_program->SetUniform("light.cutoff", glm::vec2(
-    cosf(glm::radians(m_light.cutoff[0])),
-    cosf(glm::radians(m_light.cutoff[0] + m_light.cutoff[1]))));
     m_program->SetUniform("light.attenuation", GetAttenuationCoeff(m_light.distance));
     m_program->SetUniform("light.ambient", m_light.ambient);
     m_program->SetUniform("light.diffuse", m_light.diffuse);
     m_program->SetUniform("light.specular", m_light.specular);
 
-    m_program->SetUniform("material.diffuse", 0);
-    m_program->SetUniform("material.specular", 1);
-    m_program->SetUniform("material.shininess", m_material.shininess);
-    glActiveTexture(GL_TEXTURE0);
-    m_material.diffuse->Bind();
-    glActiveTexture(GL_TEXTURE1);
-    m_material.specular->Bind();
 
-    
-    // auto modelTransform = glm::mat4(1.0f);
-    // obj tranform
-    auto modelTransform = glm::translate(glm::mat4(1.0f), glm::vec3(m_obj.position.x, m_obj.position.y, m_obj.position.z));
-    modelTransform = glm::rotate(modelTransform, glm::radians(m_obj.direction.x), glm::vec3(1.0, 0.0, 0.0));
-    modelTransform = glm::rotate(modelTransform, glm::radians(m_obj.direction.y), glm::vec3(0.0, 1.0, 0.0));
-    modelTransform = glm::rotate(modelTransform, glm::radians(m_obj.direction.z), glm::vec3(0.0, 0.0, 1.0));
+
+    m_program->SetUniform("material.diffuse", 0.5f);
+    m_program->SetUniform("material.specular", 1);
+    //m_program->SetUniform("material.shininess", m_material.shininess);
+
+
+    //ground 
+    auto modelTransform = 
+        glm::translate(glm::mat4(1.0f), glm::vec3(0.0f, -5.0f, 0.0f)) *
+        glm::scale(glm::mat4(1.0f), glm::vec3(10.0f, 0.3f, 10.0f));
     auto transform = projection * view * modelTransform;
     m_program->SetUniform("transform", transform);
     m_program->SetUniform("modelTransform", modelTransform);
+    m_planeMaterial->SetToProgram(m_program.get());
+    m_box->Draw(m_program.get());
+
+    //wall left
+    modelTransform = 
+        glm::translate(glm::mat4(1.0f), glm::vec3(-5.0f, 0.0f, 0.0f)) *
+        glm::scale(glm::mat4(1.0f), glm::vec3(0.3f, 10.0f, 10.0f));
+    transform = projection * view * modelTransform;
+    m_program->SetUniform("transform", transform);
+    m_program->SetUniform("modelTransform", modelTransform);
+    m_planeMaterial->SetToProgram(m_program.get());
+    m_box->Draw(m_program.get());
+
+    //wall right
+    modelTransform = 
+        glm::translate(glm::mat4(1.0f), glm::vec3(5.0f, 0.0f, 0.0f)) *
+        glm::scale(glm::mat4(1.0f), glm::vec3(0.3f, 10.0f, 10.0f));
+    transform = projection * view * modelTransform;
+    m_program->SetUniform("transform", transform);
+    m_program->SetUniform("modelTransform", modelTransform);
+    m_planeMaterial->SetToProgram(m_program.get());
+    m_box->Draw(m_program.get());
+
+    //wall back
+    modelTransform = 
+        glm::translate(glm::mat4(1.0f), glm::vec3(0.0f, 0.0f,-5.0f)) *
+        glm::scale(glm::mat4(1.0f), glm::vec3(10.0f, 10.0f, 0.3f));
+    transform = projection * view * modelTransform;
+    m_program->SetUniform("transform", transform);
+    m_program->SetUniform("modelTransform", modelTransform);
+    m_planeMaterial->SetToProgram(m_program.get());
+    m_box->Draw(m_program.get());
+
+    // auto modelTransform = glm::mat4(1.0f);
+    // obj tranform
+    // modelTransform = glm::translate(glm::mat4(1.0f), glm::vec3(m_obj.position.x, m_obj.position.y, m_obj.position.z));
+    // modelTransform = glm::rotate(modelTransform, glm::radians(m_obj.direction.x), glm::vec3(1.0, 0.0, 0.0));
+    // modelTransform = glm::rotate(modelTransform, glm::radians(m_obj.direction.y), glm::vec3(0.0, 1.0, 0.0));
+    // modelTransform = glm::rotate(modelTransform, glm::radians(m_obj.direction.z), glm::vec3(0.0, 0.0, 1.0));
+    
+    {
+        //bag 1
+    modelTransform = 
+        glm::translate(glm::mat4(1.0f), glm::vec3(0.0f, 0.2f, 0.0f)) *
+        glm::scale(glm::mat4(1.0f), glm::vec3(0.5f, 0.5f, 0.5f));
+    modelTransform = glm::rotate(modelTransform, -90.0f, glm::vec3(1.0, 0.0, 0.0));
+    transform = projection * view * modelTransform;
+    m_program->SetUniform("transform", transform);
+    m_program->SetUniform("modelTransform", modelTransform);
     m_model->Draw(m_program.get());
-    //m_model->Draw();
+
+    //bag 2
+    modelTransform = 
+        glm::translate(glm::mat4(1.0f), glm::vec3(4.0f, 3.0f, 2.0f)) *
+        glm::scale(glm::mat4(1.0f), glm::vec3(0.5f, 0.5f, 0.5f));
+
+    modelTransform = glm::rotate(modelTransform, 90.0f, glm::vec3(0.0, 1.0, 0.0));
+    transform = projection * view * modelTransform;
+    m_program->SetUniform("transform", transform);
+    m_program->SetUniform("modelTransform", modelTransform);
+    m_model->Draw(m_program.get());
+
+    //bag 3
+    modelTransform = 
+        glm::translate(glm::mat4(1.0f), glm::vec3(-4.0f, -3.0f, 2.0f)) *
+        glm::scale(glm::mat4(1.0f), glm::vec3(0.5f, 0.5f, 0.5f));
+
+    modelTransform = glm::rotate(modelTransform, 60.0f, glm::vec3(0.0, 0.0, 1.0));
+    transform = projection * view * modelTransform;
+    m_program->SetUniform("transform", transform);
+    m_program->SetUniform("modelTransform", modelTransform);
+    m_model->Draw(m_program.get());
+
+    //bag 4
+    modelTransform = 
+        glm::translate(glm::mat4(1.0f), glm::vec3(-2.0f, -3.0f, -1.0f)) *
+        glm::scale(glm::mat4(1.0f), glm::vec3(0.5f, 0.5f, 0.5f));
+
+    modelTransform = glm::rotate(modelTransform, 90.0f, glm::vec3(1.0, 1.0, 1.0));
+    transform = projection * view * modelTransform;
+    m_program->SetUniform("transform", transform);
+    m_program->SetUniform("modelTransform", modelTransform);
+    m_model->Draw(m_program.get());
+
+    //bag 5
+    modelTransform = 
+        glm::translate(glm::mat4(1.0f), glm::vec3(2.0f, 1.5f, 2.0f)) *
+        glm::scale(glm::mat4(1.0f), glm::vec3(0.5f, 0.5f, 0.5f));
+
+    modelTransform = glm::rotate(modelTransform, 35.0f, glm::vec3(1.0, 1.0, 1.0));
+    transform = projection * view * modelTransform;
+    m_program->SetUniform("transform", transform);
+    m_program->SetUniform("modelTransform", modelTransform);
+    m_model->Draw(m_program.get());
+
+    //bag 6
+    modelTransform = 
+        glm::translate(glm::mat4(1.0f), glm::vec3(2.0f, -3.0f, 2.0f)) *
+        glm::scale(glm::mat4(1.0f), glm::vec3(0.5f, 0.5f, 0.5f));
+
+    modelTransform = glm::rotate(modelTransform, -70.0f, glm::vec3(1.0, 1.0, 1.0));
+    transform = projection * view * modelTransform;
+    m_program->SetUniform("transform", transform);
+    m_program->SetUniform("modelTransform", modelTransform);
+    m_model->Draw(m_program.get());
+    }
 }
 
 void Context::ProcessInput(GLFWwindow* window) {

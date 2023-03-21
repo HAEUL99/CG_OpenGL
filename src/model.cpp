@@ -63,7 +63,7 @@ void Model::ProcessMesh(aiMesh* mesh, const aiScene* scene) {
     auto& v = vertices[i];
     v.position = glm::vec3(mesh->mVertices[i].x, mesh->mVertices[i].y, mesh->mVertices[i].z);
     v.normal = glm::vec3(mesh->mNormals[i].x, mesh->mNormals[i].y, mesh->mNormals[i].z);
-    v.texCoord = glm::vec2(mesh->mTextureCoords[0][i].x, mesh->mTextureCoords[0][i].y);
+    v.texCoord = glm::vec3(mesh->mTextureCoords[0][i].x, mesh->mTextureCoords[0][i].y, 0);
     }
 
     std::vector<uint32_t> indices;
@@ -72,6 +72,7 @@ void Model::ProcessMesh(aiMesh* mesh, const aiScene* scene) {
     indices[3*i  ] = mesh->mFaces[i].mIndices[0];
     indices[3*i+1] = mesh->mFaces[i].mIndices[1];
     indices[3*i+2] = mesh->mFaces[i].mIndices[2];
+
     }
 
     auto glMesh = Mesh::Create(vertices, indices, GL_TRIANGLES);
