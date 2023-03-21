@@ -16,7 +16,9 @@ struct Light {
     vec3 specular;
 };
 uniform Light light;
- 
+uniform Light light1;
+uniform Light light2;
+
 struct Material {
     sampler2D diffuse;
     sampler2D specular;
@@ -35,7 +37,7 @@ void main() {
     vec3 pixelNorm = normalize(normal);
     float diff = max(dot(pixelNorm, lightDir), 0.0);
     vec3 diffuse = diff * texColor * light.diffuse;
-   vec3 specColor = texture2D(material.specular, texCoord).xyz;
+    vec3 specColor = texture2D(material.specular, texCoord).xyz;
     vec3 viewDir = normalize(viewPos - position);
     vec3 reflectDir = reflect(-lightDir, pixelNorm);
     float spec = pow(max(dot(viewDir, reflectDir), 0.0), material.shininess);
