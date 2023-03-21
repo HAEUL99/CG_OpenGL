@@ -26,6 +26,6 @@ void main() {
     normal = (transpose(inverse(modelTransform)) * vec4(aNormal, 0.0)).xyz;
     texCoord = aTexCoord;
     //world coordinate 
-    position = (modelTransform * vec4(1.0)).xyz;
-
-}
+    position = vec3(modelTransform * vec4(aPos, 1.0));
+    
+}   

@@ -25,6 +25,7 @@ private:
     Context() {}
     bool Init();
     ProgramUPtr m_program;
+    ProgramUPtr m_program1;
     ProgramUPtr m_simpleProgram;
 
 

@@ -24,7 +24,6 @@ bool Context::Init() {
     if (!m_program)
         return false;
 
-
     glClearColor(0.0f, 0.1f, 0.2f, 0.0f); // 컬러 프레임버퍼 화면을 클리어할 색상 지정
 
     TexturePtr grayTexture = Texture::CreateFromImage(
@@ -34,37 +33,6 @@ bool Context::Init() {
     m_planeMaterial->diffuse = Texture::CreateFromImage(Image::Load("./image/marble.jpg").get());
     m_planeMaterial->specular = grayTexture;
     m_planeMaterial->shininess = 128.0f;
-
-    m_light1.position = glm::vec3(0.0f, 0.0f, 0.0f);
-    m_light2.position = glm::vec3(-2.0f, -2.0f, -2.0f);
-    
-    // auto image = Image::Load("./image/container.jpg");
-    // if (!image) 
-    //    return false;
-    // SPDLOG_INFO("image: {}x{}, {} channels", image->GetWidth(), image->GetHeight(), image->GetChannelCount());
-
-    // m_texture = Texture::CreateFromImage(image.get()); //unique 포인터 -> 포인터
-
-    // auto image2 = Image::Load("./image/awesomeface.png");
-    // m_texture2 = Texture::CreateFromImage(image2.get());
-
-    // // m_material.diffuse = Texture::CreateFromImage(Image::Load("./image/container2.png").get());
-	// // m_material.specular = Texture::CreateFromImage( Image::Load("./image/container2_specular.png").get());
-
-    // m_material.diffuse = Texture::CreateFromImage(Image::CreateSingleColorImage(4, 4,
-    // glm::vec4(1.0f, 1.0f, 1.0f, 1.0f)).get());
-
-    // m_material.specular = Texture::CreateFromImage(Image::CreateSingleColorImage(4, 4,
-    // glm::vec4(0.5f, 0.5f, 0.5f, 1.0f)).get());
-
-    // glActiveTexture(GL_TEXTURE0);
-    // glBindTexture(GL_TEXTURE_2D, m_texture->Get());
-    // glActiveTexture(GL_TEXTURE1);
-    // glBindTexture(GL_TEXTURE_2D, m_texture2->Get());
-
-    // m_program->Use();
-    // m_program->SetUniform("tex", 0);
-    // m_program->SetUniform("tex2", 1);
 
     return true;
 }
@@ -96,27 +64,27 @@ void Context::Render() {
         if (ImGui::CollapsingHeader("1.light", ImGuiTreeNodeFlags_DefaultOpen)) {
             ImGui::Checkbox("1.bool", &IsLight);
             ImGui::DragFloat3("l.direction", glm::value_ptr(m_light.position), 0.01f);
-            //ImGui::DragFloat("1.distance", &m_light.distance, 0.5f, 0.0f, 3000.0f);
+            ImGui::DragFloat("1.distance", &m_light.distance, 0.5f, 0.0f, 3000.0f);
             ImGui::ColorEdit3("l.ambient", glm::value_ptr(m_light.ambient));
             ImGui::ColorEdit3("l.diffuse", glm::value_ptr(m_light.diffuse));
             ImGui::ColorEdit3("l.specular", glm::value_ptr(m_light.specular));
         }
         if (ImGui::CollapsingHeader("2.light", ImGuiTreeNodeFlags_DefaultOpen)) {
             ImGui::Checkbox("2.bool", &IsLight1);
-            ImGui::DragFloat3("2.direction", glm::value_ptr(m_light.position), 0.01f);
-            //ImGui::DragFloat("2.distance", &m_light.distance, 0.5f, 0.0f, 3000.0f);
-            ImGui::ColorEdit3("2.ambient", glm::value_ptr(m_light.ambient));
-            ImGui::ColorEdit3("2.diffuse", glm::value_ptr(m_light.diffuse));
-            ImGui::ColorEdit3("2.specular", glm::value_ptr(m_light.specular));
+            ImGui::DragFloat3("2.direction", glm::value_ptr(m_light1.position), 0.01f);
+            ImGui::DragFloat("2.distance", &m_light1.distance, 0.5f, 0.0f, 3000.0f);
+            ImGui::ColorEdit3("2.ambient", glm::value_ptr(m_light1.ambient));
+            ImGui::ColorEdit3("2.diffuse", glm::value_ptr(m_light1.diffuse));
+            ImGui::ColorEdit3("2.specular", glm::value_ptr(m_light1.specular));
         }
-        if (ImGui::CollapsingHeader("3.light", ImGuiTreeNodeFlags_DefaultOpen)) {
-            ImGui::Checkbox("3.bool", &IsLight2);
-            ImGui::DragFloat3("3.direction", glm::value_ptr(m_light.position), 0.01f);
-           // ImGui::DragFloat("3.distance", &m_light.distance, 0.5f, 0.0f, 3000.0f);
-            ImGui::ColorEdit3("3.ambient", glm::value_ptr(m_light.ambient));
-            ImGui::ColorEdit3("3.diffuse", glm::value_ptr(m_light.diffuse));
-            ImGui::ColorEdit3("3.specular", glm::value_ptr(m_light.specular));
-        }
+        // if (ImGui::CollapsingHeader("3.light", ImGuiTreeNodeFlags_DefaultOpen)) {
+        //     ImGui::Checkbox("3.bool", &IsLight2);
+        //     ImGui::DragFloat3("3.direction", glm::value_ptr(m_light2.position), 0.01f);
+        //     ImGui::DragFloat("3.distance", &m_light2.distance, 0.5f, 0.0f, 3000.0f);
+        //     ImGui::ColorEdit3("3.ambient", glm::value_ptr(m_light2.ambient));
+        //     ImGui::ColorEdit3("3.diffuse", glm::value_ptr(m_light2.diffuse));
+        //     ImGui::ColorEdit3("3.specular", glm::value_ptr(m_light2.specular));
+        // }
 
 
     
@@ -140,7 +108,7 @@ void Context::Render() {
     glm::vec4(0.0f, 0.0f, -1.0f, 0.0f);
     auto projection = glm::perspective(glm::radians(45.0f),
         (float)WINDOW_WIDTH / (float)WINDOW_HEIGHT, 0.01f, 20.0f);
-    //auto view = glm::translate(glm::mat4(1.0f), glm::vec3(0.0f, 0.0f, -3.0f));
+
 
     auto view = glm::lookAt(m_cameraPos, m_cameraPos + m_cameraFront, m_cameraUp);
 
@@ -151,6 +119,18 @@ void Context::Render() {
     m_simpleProgram->SetUniform("transform", projection * view * lightModelTransform);
     m_box->Draw(m_simpleProgram.get());
 
+    auto lightModelTransform1 = glm::translate(glm::mat4(1.0), m_light1.position) * glm::scale(glm::mat4(1.0), glm::vec3(0.1f));
+    m_simpleProgram->Use();
+    m_simpleProgram->SetUniform("color", glm::vec4(m_light1.ambient + m_light1.diffuse, 1.0f));
+    m_simpleProgram->SetUniform("transform", projection * view * lightModelTransform1);
+    m_box->Draw(m_simpleProgram.get());
+
+    // auto lightModelTransform2 = glm::translate(glm::mat4(1.0), m_light2.position) * glm::scale(glm::mat4(1.0), glm::vec3(0.1f));
+    // m_simpleProgram->Use();
+    // m_simpleProgram->SetUniform("color", glm::vec4(m_light2.ambient + m_light2.diffuse, 1.0f));
+    // m_simpleProgram->SetUniform("transform", projection * view * lightModelTransform2);
+    // m_box->Draw(m_simpleProgram.get());
+
     
     m_program->Use();
     m_program->SetUniform("viewPos", m_cameraPos);
@@ -158,51 +138,58 @@ void Context::Render() {
     m_program->SetUniform("obj.direction", m_obj.direction);
 
     //light
-    m_program->SetUniform("light.position", m_light.position);
-    m_program->SetUniform("light.ambient", m_light.ambient);
-    m_program->SetUniform("light.diffuse", m_light.diffuse);
-    m_program->SetUniform("light.specular", m_light.specular);
+    m_program->SetUniform("pointLights[0].position", m_light.position);
+    m_program->SetUniform("pointLights[0].ambient", m_light.ambient);
+    m_program->SetUniform("pointLights[0].diffuse", m_light.diffuse);
+    m_program->SetUniform("pointLights[0].specular", m_light.specular);
+    m_program->SetUniform("pointLights[0].constant", 1.0f);
+    m_program->SetUniform("pointLights[0].linear", 0.09f);
+    m_program->SetUniform("pointLights[0].quadratic", 0.032f);
 
-    if(IsLight == false)
-    {
-            m_program->SetUniform("light.attenuation", GetAttenuationCoeff(0));
-    }
-    if(IsLight == true)
-    {
-        m_program->SetUniform("light.attenuation", GetAttenuationCoeff(m_light.distance));
-    }
+    // if(IsLight == false)
+    // {
+    //     m_program->SetUniform("pointLights[0].attenuation", GetAttenuationCoeff(0));
+    // }
+    // if(IsLight == true)
+    // {
+    //     m_program->SetUniform("pointLights[0].attenuation", GetAttenuationCoeff(m_light.distance));
+    // }
     
-
     //light1
-    m_program->SetUniform("light1.position", m_light1.position);
-    m_program->SetUniform("light1.ambient", m_light1.ambient);
-    m_program->SetUniform("light1.diffuse", m_light1.diffuse);
-    m_program->SetUniform("light1.specular", m_light1.specular);
-    if(IsLight1 == false)
-    {
-        m_program->SetUniform("light1.attenuation", GetAttenuationCoeff(0));
-    }
-    if(IsLight1 == true)
-    {
-        m_program->SetUniform("light1.attenuation", GetAttenuationCoeff(m_light1.distance));
-    }
+    m_program->SetUniform("pointLights[1].position", m_light1.position);
+    m_program->SetUniform("pointLights[1].ambient", m_light1.ambient);
+    m_program->SetUniform("pointLights[1].diffuse", m_light1.diffuse);
+    m_program->SetUniform("pointLights[1].specular", m_light1.specular);
+    m_program->SetUniform("pointLights[1].constant", 1.0f);
+    m_program->SetUniform("pointLights[1].linear", 0.09f);
+    m_program->SetUniform("pointLights[1].quadratic", 0.032f);
+    // if(IsLight1 == false)
+    // {
+    //     m_program1->SetUniform("pointLights[1].attenuation", GetAttenuationCoeff(0));
+    // }
+    // if(IsLight1 == true)
+    // {
+    //     m_program1->SetUniform("pointLights[1].attenuation", GetAttenuationCoeff(m_light1.distance));
+    // }
 
         
 
     //light2   
-    m_program->SetUniform("light2.position", m_light2.position);
-    m_program->SetUniform("light2.ambient", m_light2.ambient);
-    m_program->SetUniform("light2.diffuse", m_light2.diffuse);
-    m_program->SetUniform("light2.specular", m_light2.specular);
+    // m_program->SetUniform("light2.position", m_light2.position);
+    // m_program->SetUniform("light2.ambient", m_light2.ambient);
+    // m_program->SetUniform("light2.diffuse", m_light2.diffuse);
+    // m_program->SetUniform("light2.specular", m_light2.specular);
 
-    if(IsLight2 == false)
-    {
-        m_program->SetUniform("light2.attenuation", GetAttenuationCoeff(0));
-    }
-    if(IsLight2 == true)
-    {
-        m_program->SetUniform("light2.attenuation", GetAttenuationCoeff(m_light2.distance));
-    }
+    // if(IsLight2 == false)
+    // {
+    //     m_program->SetUniform("light2.attenuation", GetAttenuationCoeff(0));
+    // }
+    // if(IsLight2 == true)
+    // {
+    //     m_program->SetUniform("light2.attenuation", GetAttenuationCoeff(m_light2.distance));
+    // }
+
+       
 
     m_program->SetUniform("material.diffuse", 0.5f);
     m_program->SetUniform("material.specular", 1);
