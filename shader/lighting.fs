@@ -67,7 +67,6 @@ void main() {
     // phase 2: Point lights
     for(int i = 0; i < 2; i++)
     {
-
         result += CalcPointLight(pointLights[i], norm, position, viewDir);  
     }  
     // phase 3: Spot light

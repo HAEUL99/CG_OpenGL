@@ -99,7 +99,16 @@ int main(int argc, const char** argv)
     ImGui_ImplOpenGL3_CreateFontsTexture();
     ImGui_ImplOpenGL3_CreateDeviceObjects();
 
-    auto context = Context::Create();
+    IsLocal = false;
+    auto context;
+    if(IsLocal)
+    {
+        context = Context::Create();
+    }
+    else
+    {
+        context = Context::CreateGlobal();
+    }
     if (!context) {
         SPDLOG_ERROR("failed to create context");
         glfwTerminate();
