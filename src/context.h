@@ -66,6 +66,7 @@ private:
     Light m_light1;    
     Light m_light2;
 
+
     // material parameter
     // struct Material {
     //     TextureUPtr diffuse;

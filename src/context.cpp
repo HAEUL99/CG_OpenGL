@@ -11,7 +11,7 @@ ContextUPtr Context::Create() {
 
 ContextUPtr Context::CreateGlobal() {
     auto context = ContextUPtr(new Context());
-    if (!context->Init())
+    if (!context->InitGlobal())
         return nullptr;
     return std::move(context);
 }
@@ -29,6 +29,43 @@ bool Context::Init() {
         return false;
 
     m_program = Program::Create("./shader/lighting.vs", "./shader/lighting.fs");
+    if (!m_program)
+        return false;
+
+    glClearColor(0.0f, 0.1f, 0.2f, 0.0f); // 컬러 프레임버퍼 화면을 클리어할 색상 지정
+
+    TexturePtr grayTexture = Texture::CreateFromImage(
+    Image::CreateSingleColorImage(4, 4, glm::vec4(0.5f, 0.5f, 0.5f, 1.0f)).get());
+    
+    m_planeMaterial = Material::Create();
+    m_planeMaterial->diffuse = Texture::CreateFromImage(Image::Load("./image/marble.jpg").get());
+    m_planeMaterial->specular = grayTexture;
+    m_planeMaterial->shininess = 128.0f;
+
+    return true;
+}
+
+bool Context::InitGlobal() {
+    m_box = Mesh::CreateBox();
+
+    const MaterialGlobal shinyIvoryMaterial{ Vec4f{0.6f, 0.3f, 0.1f, 0.0f }, Vec3f{0.4f,0.4f,0.3f}, 50.0f, 1.0f };
+	const MaterialGlobal dullRedMaterial{ Vec4f{0.7f, 0.1f, 0.0f, 0.0f }, Vec3f{0.5f,0.1f,0.1f}, 5.0f, 1.0f };
+	const MaterialGlobal mirrorMaterial{ Vec4f{0.0f, 10.0f, 0.8f, 0.0f }, Vec3f{1.0f,1.0f,1.0f}, 1425.0f, 1.0f };
+	const MaterialGlobal glassMaterial{ Vec4f{0.0f, 0.5f, 0.1f, 0.8f }, Vec3f{0.6f,0.7f,0.8f}, 125.0f, 1.5f };
+
+    // Add objects in scene
+    //scene->AddSphere({ std::string{ "Sphere 1" }, Vec3f(-3.0f, 0.0f, 0.0f), 2.0f, shinyIvoryMaterial });
+    //scene->AddSphere({ std::string{ "Sphere 2" },Vec3f(-1.0f,-1.5f, 4.0f), 2.0f, glassMaterial });
+    //scene->AddSphere({ std::string{ "Sphere 3" },Vec3f(1.5f,-0.5f, -2.0f), 3.0f, dullRedMaterial });
+    //scene->AddSphere({ std::string{ "Sphere 4" },Vec3f(7.0f, 5.0f, -2.0f), 4.0f, mirrorMaterial });
+    std::vector<ModelBase*> objects;
+    objects.emplace_back(new Sphere{ std::string{ "Sphere 1" }, Vec3f(-3.0f, 0.0f, 0.0f), 2.0f, shinyIvoryMaterial });
+
+    m_simpleProgram = Program::Create("./shader/simple.vs", "./shader/simple.fs");
+    if (!m_simpleProgram)
+        return false;
+
+    m_program = Program::Create("./shader/lightingG.vs", "./shader/lightingG.fs");
     if (!m_program)
         return false;
 
