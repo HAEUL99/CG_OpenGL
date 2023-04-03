@@ -4,8 +4,8 @@ set(CMAKE_PROJECT_NAME opengl_example)
 set(CMAKE_CXX_STANDARD 17)
 
 set(WINDOW_NAME "opengl example!")
-set(WINDOW_WIDTH 960)
-set(WINDOW_HEIGHT 540)
+set(WINDOW_WIDTH 940) #940
+set(WINDOW_HEIGHT 540) 
 
 project(${CMAKE_PROJECT_NAME})
 add_executable(${PROJECT_NAME} 
@@ -20,11 +20,17 @@ add_executable(${PROJECT_NAME}
     src/texture.cpp src/texture.h
     src/mesh.cpp src/mesh.h
     src/model.cpp src/model.h
+    src/Scene.cpp src/Scene.h
+    src/Intersectable.h
+    src/framework.h
+    src/Sphere.cpp src/Sphere.h
+    src/Camera.cpp src/Camera.h
+    src/FullScreenTexutredQuad.cpp src/FullScreenTexutredQuad.h
+    src/objModel.cpp src/objModel.h
     src/Geometry.h
-    src/Material.h
-    src/ModelBase.h
-    src/Sphere.h
-    )
+
+
+)
 
 Include(Dependency.cmake)
 
