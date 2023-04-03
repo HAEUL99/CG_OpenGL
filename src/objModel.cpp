@@ -7,6 +7,7 @@
 #include "ObjModel.h"
 
 
+
 ObjModel::ObjModel(std::string& _name, char * _filename, MaterialGlobal* _m)
 {
     name = _name;
@@ -39,10 +40,10 @@ void ObjModel::LoadModel(char *filename)
         else if ( strcmp( lineHeader, "f" ) == 0 )
         {
             
-            Vec3f vertex;
+            Vec3i vertex;
             int matches = fscanf(file, "%d %d %d\n", &vertex.x, &vertex.y, &vertex.z);
             
-            //faces.push_back(vertex);
+            faces.push_back(vertex);
 
         }
     }
@@ -55,15 +56,15 @@ void ObjModel::get_bbox(Vec3f &min, Vec3f &max) {
 	min = max = verts[0];
 	for (int i = 1; i < (int)verts.size(); ++i) {
 		for (int j = 0; j < 3; j++) {
-			//min[j] = std::min(min[j], vertexes[i][j]);
-			//max[j] = std::max(max[j], vertexes[i][j]);
+			min[j] = std::min(min[j], verts[i][j]);
+			max[j] = std::max(max[j], verts[i][j]);
 		}
 	}
     //SPDLOG_INFO("# vertexes: {},  vertexes1 : {}", min.x, max.x);
 	//std::cerr << "bbox: [" << min << " : " << max << "]" << std::endl;
 }
-/*
-bool ObjModel::ray_aabb_intersect(const glm::vec3 &orig, const glm::vec3 &dir) const
+
+bool ObjModel::ray_aabb_intersect(const Vec3f&orig, const Vec3f &dir) const
 {
 	float t_min_x = (bboxMin.x - orig.x) / dir.x;
 	float t_min_y = (bboxMin.y - orig.y) / dir.y;
@@ -107,15 +108,15 @@ bool ObjModel::ray_triangle_intersect(const int &fi, const Vec3f &orig, const Ve
 	normal = cross(edge1, edge2).normalize();
 	return tnear > 1e-5;
 }
-*/
+
 Hit ObjModel::intersect(const Ray& ray)
 {
 	
     Hit hit;
 	/*
-    if (!ray_aabb_intersect(ray.start, ray.dir))
-		return Hit;
-
+    if (!ray_aabb_intersect(ray.start, ray.dir)
+		return hit;
+	
     float t = std::numeric_limits<float>::max();
 	bool isIntersection = false;
 	glm::vec3 tmpNormal;
@@ -139,8 +140,23 @@ Hit ObjModel::intersect(const Ray& ray)
 		hit.position = ray.start + ray.dir * t;
 	
 	}
-*/
+	*/
 	return hit;
 
 
+}
+
+const Vec3f &ObjModel::point(int i) const {
+	assert(i >= 0 && i < verts.size());
+	return verts[i];
+}
+
+Vec3f &ObjModel::point(int i) {
+	assert(i >= 0 && i < verts.size());
+	return verts[i];
+}
+
+int ObjModel::vert(int fi, int li) const {
+	assert(fi >= 0 && fi < faces.size() && li >= 0 && li < 3);
+	return faces[fi][li];
 }

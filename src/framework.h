@@ -3,6 +3,8 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <math.h>
+#include <cassert>
+#include <iostream>
 #include <vector>
 #include <string>
 #include "common.h"
