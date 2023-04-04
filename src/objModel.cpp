@@ -19,6 +19,7 @@ ObjModel::ObjModel(std::string& _name, char * _filename, MaterialGlobal* _m)
 // fills verts and faces arrays, supposes .obj file to have "f " entries without slashes
 void ObjModel::LoadModel(char *filename) 
 {
+	/*
 	FILE* file = fopen(filename, "r");
 
 
@@ -47,10 +48,48 @@ void ObjModel::LoadModel(char *filename)
 
         }
     }
-	//std::cerr << "# v# " << verts.size() << " f# " << faces.size() << std::endl;
-	//std::cout << "!";
 
-	
+	*/
+
+std::ifstream in;
+	in.open(filename, std::ifstream::in);
+	if (in.fail()) {
+		//std::cerr << "Failed to open " << filename << std::endl;
+		return;
+	}
+	std::string line;
+	while (!in.eof()) {
+		std::getline(in, line);
+		std::istringstream iss(line.c_str());
+		char trash;
+		if (!line.compare(0, 2, "v ")) {
+			iss >> trash;
+			vec3 v;
+			for (int i = 0; i < 3; i++)
+			{
+				if(i == 0)
+					iss >> v.x;
+				else if(i == 1)
+					iss >> v.y;
+				else
+					iss >> v.z;
+
+			}
+				
+			verts.push_back(v);
+		}
+		else if (!line.compare(0, 2, "f ")) {
+			glm::ivec3 f;
+			int idx, cnt = 0;
+			iss >> trash;
+			while (iss >> idx) {
+				idx--; // in wavefront obj all indices start at 1, not zero
+				f[cnt++] = idx;
+			}
+			if (3 == cnt) faces.push_back(f);
+		}
+	}
+	SPDLOG_INFO("# verts: {},  faces : {}", verts.size(), faces.size());
 	get_bbox(bboxMin, bboxMax);
 }
 
@@ -94,7 +133,7 @@ bool ObjModel::ray_aabb_intersect(const vec3&orig, const vec3 &dir) const
 	float t_max_x = (bboxMax.x - orig.x) / dir.x;
 	float t_max_y = (bboxMax.y - orig.y) / dir.y;
 	float t_max_z = (bboxMax.z - orig.z) / dir.z;
-
+	
 	if (dir.x < 0) {
 		std::swap(t_max_x, t_min_x);
 	}
@@ -107,40 +146,41 @@ bool ObjModel::ray_aabb_intersect(const vec3&orig, const vec3 &dir) const
 
 	float t_enter = std::max(t_min_x, std::max(t_min_y, t_min_z));
 	float t_exit = std::min(t_max_x, std::min(t_max_y, t_max_z));
+	//SPDLOG_INFO("# t_enter: {},  t_exit: {}", t_enter, t_exit);
 	return t_exit > t_enter && t_exit >= 0;
 }
 
 bool ObjModel::ray_triangle_intersect(const int &fi, const vec3 &orig, const vec3 &dir, float &tnear, vec3& normal) const {
-	vec3 edge1 = point(vert(fi, 1)) - point(vert(fi, 0));
-	//vec3 edge1;
-	//edge1.x = point(vert(fi, 1)).x - point(vert(fi, 0)).x;
-	//edge1.y = point(vert(fi, 1)).y - point(vert(fi, 0)).y;
-	//edge1.z = point(vert(fi, 1)).z - point(vert(fi, 0)).z;
+	//vec3 edge1 = point(vert(fi, 1)) - point(vert(fi, 0));
+	vec3 edge1;
+	edge1.x = point(vert(fi, 1)).x - point(vert(fi, 0)).x;
+	edge1.y = point(vert(fi, 1)).y - point(vert(fi, 0)).y;
+	edge1.z = point(vert(fi, 1)).z - point(vert(fi, 0)).z;
 	
-	vec3 edge2 = point(vert(fi, 2)) - point(vert(fi, 0));
-	//vec3 edge2;
-	//edge2.x =point(vert(fi, 2)).x - point(vert(fi, 0)).x;
-	//edge2.y =point(vert(fi, 2)).y - point(vert(fi, 0)).y;
-	//edge2.z =point(vert(fi, 2)).z - point(vert(fi, 0)).z;
+	//vec3 edge2 = point(vert(fi, 2)) - point(vert(fi, 0));
+	vec3 edge2;
+	edge2.x =point(vert(fi, 2)).x - point(vert(fi, 0)).x;
+	edge2.y =point(vert(fi, 2)).y - point(vert(fi, 0)).y;
+	edge2.z =point(vert(fi, 2)).z - point(vert(fi, 0)).z;
 	vec3 pvec = cross(dir, edge2);
-	//float det = edge1.x * pvec.x + edge1.y * pvec.y + edge1.z * pvec.z;
-	float det = dot(edge1, pvec);
+	float det = edge1.x * pvec.x + edge1.y * pvec.y + edge1.z * pvec.z;
+	//float det = dot(edge1, pvec);
 	//SPDLOG_INFO("# det: {}, ", det);
 	if (det < 1e-5) return false;
 
-	vec3 tvec = orig - point(vert(fi, 1));
-	//vec3 tvec;
-	//tvec.x = orig.x - point(vert(fi, 0)).x;
-	//tvec.y = orig.y - point(vert(fi, 0)).y;
-	//tvec.z = orig.z - point(vert(fi, 0)).z;
-	//float u = tvec.x * pvec.x + tvec.y * pvec.y + tvec.z * pvec.z;
-	float u = dot(tvec, pvec);
+	//vec3 tvec = orig - point(vert(fi, 1));
+	vec3 tvec;
+	tvec.x = orig.x - point(vert(fi, 0)).x;
+	tvec.y = orig.y - point(vert(fi, 0)).y;
+	tvec.z = orig.z - point(vert(fi, 0)).z;
+	float u = tvec.x * pvec.x + tvec.y * pvec.y + tvec.z * pvec.z;
+	//float u = dot(tvec, pvec);
 	//SPDLOG_INFO("# u: {}, ", u);
 	if (u < 0 || u > det) return false;
 
 	vec3 qvec = cross(tvec, edge1);
-	//float v = dir.x * qvec.x + dir.y * qvec.y + dir.z * qvec.z;
-	float v = dot(dir, qvec);
+	float v = dir.x * qvec.x + dir.y * qvec.y + dir.z * qvec.z;
+	//float v = dot(dir, qvec);
 	//SPDLOG_INFO("# v: {}, ", v);
 	if (v < 0 || u + v > det) return false;
 
@@ -163,13 +203,9 @@ vec3 &ObjModel::point(int i) {
 
 int ObjModel::vert(int fi, int li) const {
 	//assert(fi >= 0 && fi < nfaces() && li >= 0 && li < 3);
-	//glm::ivec3 m_faces = faces[fi];
-	if(li == 0)
-		return faces[fi].x;
-	else if(li == 1)
-		return faces[fi].y;
-	else	
-		return faces[fi].z;
+	glm::ivec3 m_faces = faces[fi];
+	//SPDLOG_INFO("# m_faces1 : {} Li: {}", m_faces[li], li);
+	return m_faces[li];
 }
 /*
 int ObjModel::vert(int fi, int li) const {
@@ -188,7 +224,10 @@ Hit ObjModel::intersect(const Ray& ray)
     Hit hit;
 	
     if (!ray_aabb_intersect(ray.start, ray.dir))
+	{
 		return hit;
+	}
+		
 
     float t = std::numeric_limits<float>::max();
 	bool isIntersection = false;

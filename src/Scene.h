@@ -34,6 +34,6 @@ private:
     
 	Camera camera;
 	vec3 La;
-
+	float fov;
 };
 #endif

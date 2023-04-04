@@ -1,26 +1,38 @@
 #include "context.h"
 #include "image.h"
 #include <imgui.h>
+#include "framework.h"
+#include "Scene.h"
+#include <tuple>
+#include <vector>
+#include <fstream>
+#include <algorithm>
+#include <cmath>
+#include <iostream>
 
-ContextUPtr Context::Create() {
+
+ContextUPtr Context::Create(bool isLocal) {
     auto context = ContextUPtr(new Context());
-    if (!context->Init())
-        return nullptr;
+    if(isLocal)
+    {
+        if (!context->Init())
+            return nullptr;
+    }
+    else
+    {
+        if (!context->GlobalInit())
+            return nullptr;
+    }
     return std::move(context);
 }
 
-ContextUPtr Context::CreateGlobal() {
-    auto context = ContextUPtr(new Context());
-    if (!context->InitGlobal())
-        return nullptr;
-    return std::move(context);
-}
+
 
 
 bool Context::Init() {
     m_box = Mesh::CreateBox();
 
-    m_model = Model::Load("./model/cow.obj");
+    m_model = Model::Load("./model/backpack.obj");
     if (!m_model)
         return false;
 
@@ -29,43 +41,6 @@ bool Context::Init() {
         return false;
 
     m_program = Program::Create("./shader/lighting.vs", "./shader/lighting.fs");
-    if (!m_program)
-        return false;
-
-    glClearColor(0.0f, 0.1f, 0.2f, 0.0f); // 컬러 프레임버퍼 화면을 클리어할 색상 지정
-
-    TexturePtr grayTexture = Texture::CreateFromImage(
-    Image::CreateSingleColorImage(4, 4, glm::vec4(0.5f, 0.5f, 0.5f, 1.0f)).get());
-    
-    m_planeMaterial = Material::Create();
-    m_planeMaterial->diffuse = Texture::CreateFromImage(Image::Load("./image/marble.jpg").get());
-    m_planeMaterial->specular = grayTexture;
-    m_planeMaterial->shininess = 128.0f;
-
-    return true;
-}
-
-bool Context::InitGlobal() {
-    m_box = Mesh::CreateBox();
-
-    const MaterialGlobal shinyIvoryMaterial{ Vec4f{0.6f, 0.3f, 0.1f, 0.0f }, Vec3f{0.4f,0.4f,0.3f}, 50.0f, 1.0f };
-	const MaterialGlobal dullRedMaterial{ Vec4f{0.7f, 0.1f, 0.0f, 0.0f }, Vec3f{0.5f,0.1f,0.1f}, 5.0f, 1.0f };
-	const MaterialGlobal mirrorMaterial{ Vec4f{0.0f, 10.0f, 0.8f, 0.0f }, Vec3f{1.0f,1.0f,1.0f}, 1425.0f, 1.0f };
-	const MaterialGlobal glassMaterial{ Vec4f{0.0f, 0.5f, 0.1f, 0.8f }, Vec3f{0.6f,0.7f,0.8f}, 125.0f, 1.5f };
-
-    // Add objects in scene
-    //scene->AddSphere({ std::string{ "Sphere 1" }, Vec3f(-3.0f, 0.0f, 0.0f), 2.0f, shinyIvoryMaterial });
-    //scene->AddSphere({ std::string{ "Sphere 2" },Vec3f(-1.0f,-1.5f, 4.0f), 2.0f, glassMaterial });
-    //scene->AddSphere({ std::string{ "Sphere 3" },Vec3f(1.5f,-0.5f, -2.0f), 3.0f, dullRedMaterial });
-    //scene->AddSphere({ std::string{ "Sphere 4" },Vec3f(7.0f, 5.0f, -2.0f), 4.0f, mirrorMaterial });
-    std::vector<ModelBase*> objects;
-    objects.emplace_back(new Sphere{ std::string{ "Sphere 1" }, Vec3f(-3.0f, 0.0f, 0.0f), 2.0f, shinyIvoryMaterial });
-
-    m_simpleProgram = Program::Create("./shader/simple.vs", "./shader/simple.fs");
-    if (!m_simpleProgram)
-        return false;
-
-    m_program = Program::Create("./shader/lightingG.vs", "./shader/lightingG.fs");
     if (!m_program)
         return false;
 
@@ -124,9 +99,10 @@ void Context::Render() {
         }
 
 
-        // if (ImGui::CollapsingHeader("material", ImGuiTreeNodeFlags_DefaultOpen)) {
-        //     ImGui::DragFloat("m.shininess", &m_material.shininess, 1.0f, 1.0f, 256.0f);
-        // }
+    
+        if (ImGui::CollapsingHeader("material", ImGuiTreeNodeFlags_DefaultOpen)) {
+            //ImGui::DragFloat("m.shininess", &m_material.shininess, 1.0f, 1.0f, 256.0f);
+        }
         ImGui::Checkbox("animation", &m_animation);
 
     }
@@ -160,6 +136,13 @@ void Context::Render() {
     m_simpleProgram->SetUniform("color", glm::vec4(m_light1.ambient + m_light1.diffuse, 1.0f));
     m_simpleProgram->SetUniform("transform", projection * view * lightModelTransform1);
     m_box->Draw(m_simpleProgram.get());
+
+    // auto lightModelTransform2 = glm::translate(glm::mat4(1.0), m_light2.position) * glm::scale(glm::mat4(1.0), glm::vec3(0.1f));
+    // m_simpleProgram->Use();
+    // m_simpleProgram->SetUniform("color", glm::vec4(m_light2.ambient + m_light2.diffuse, 1.0f));
+    // m_simpleProgram->SetUniform("transform", projection * view * lightModelTransform2);
+    // m_box->Draw(m_simpleProgram.get());
+
     
     m_program->Use();
     m_program->SetUniform("viewPos", m_cameraPos);
@@ -181,7 +164,7 @@ void Context::Render() {
     // }
     // if(IsLight == true)
     // {
-    //     m_program->SetUniform("pointLights[0].ambient", GetAttenuationCoeff(m_light.distance));
+    //     m_program->SetUniform("pointLights[0].attenuation", GetAttenuationCoeff(m_light.distance));
     // }
     
     //light1
@@ -203,11 +186,26 @@ void Context::Render() {
 
         
 
+    //light2   
+    // m_program->SetUniform("light2.position", m_light2.position);
+    // m_program->SetUniform("light2.ambient", m_light2.ambient);
+    // m_program->SetUniform("light2.diffuse", m_light2.diffuse);
+    // m_program->SetUniform("light2.specular", m_light2.specular);
+
+    // if(IsLight2 == false)
+    // {
+    //     m_program->SetUniform("light2.attenuation", GetAttenuationCoeff(0));
+    // }
+    // if(IsLight2 == true)
+    // {
+    //     m_program->SetUniform("light2.attenuation", GetAttenuationCoeff(m_light2.distance));
+    // }
+
        
 
     m_program->SetUniform("material.diffuse", 0.5f);
     m_program->SetUniform("material.specular", 1);
-    m_program->SetUniform("material.shininess", 1);
+    //m_program->SetUniform("material.shininess", m_material.shininess);
 
 
     //ground 
@@ -250,34 +248,113 @@ void Context::Render() {
     m_planeMaterial->SetToProgram(m_program.get());
     m_box->Draw(m_program.get());
 
-    // isLocal = false;
-    // if(isLocal)
-        {
-            //bag 1
-        modelTransform = 
-            glm::translate(glm::mat4(1.0f), glm::vec3(0.0f, 0.2f, 0.0f)) *
-            glm::scale(glm::mat4(1.0f), glm::vec3(0.5f, 0.5f, 0.5f));
-        modelTransform = glm::rotate(modelTransform, -90.0f, glm::vec3(1.0, 0.0, 0.0));
-        transform = projection * view * modelTransform;
-        m_program->SetUniform("transform", transform);
-        m_program->SetUniform("modelTransform", modelTransform);
-        m_model->Draw(m_program.get());
+    // auto modelTransform = glm::mat4(1.0f);
+    // obj tranform
+    // modelTransform = glm::translate(glm::mat4(1.0f), glm::vec3(m_obj.position.x, m_obj.position.y, m_obj.position.z));
+    // modelTransform = glm::rotate(modelTransform, glm::radians(m_obj.direction.x), glm::vec3(1.0, 0.0, 0.0));
+    // modelTransform = glm::rotate(modelTransform, glm::radians(m_obj.direction.y), glm::vec3(0.0, 1.0, 0.0));
+    // modelTransform = glm::rotate(modelTransform, glm::radians(m_obj.direction.z), glm::vec3(0.0, 0.0, 1.0));
+    
+    {
+        //bag 1
+    modelTransform = 
+        glm::translate(glm::mat4(1.0f), glm::vec3(0.0f, 0.2f, 0.0f)) *
+        glm::scale(glm::mat4(1.0f), glm::vec3(0.5f, 0.5f, 0.5f));
+    modelTransform = glm::rotate(modelTransform, -90.0f, glm::vec3(1.0, 0.0, 0.0));
+    transform = projection * view * modelTransform;
+    m_program->SetUniform("transform", transform);
+    m_program->SetUniform("modelTransform", modelTransform);
+    m_model->Draw(m_program.get());
 
-        //bag 2
-        modelTransform = 
-            glm::translate(glm::mat4(1.0f), glm::vec3(4.0f, 3.0f, 2.0f)) *
-            glm::scale(glm::mat4(1.0f), glm::vec3(0.5f, 0.5f, 0.5f));
+    //bag 2
+    modelTransform = 
+        glm::translate(glm::mat4(1.0f), glm::vec3(4.0f, 3.0f, 2.0f)) *
+        glm::scale(glm::mat4(1.0f), glm::vec3(0.5f, 0.5f, 0.5f));
 
-        modelTransform = glm::rotate(modelTransform, 90.0f, glm::vec3(0.0, 1.0, 0.0));
-        transform = projection * view * modelTransform;
-        m_program->SetUniform("transform", transform);
-        m_program->SetUniform("modelTransform", modelTransform);
-        m_model->Draw(m_program.get());
+    modelTransform = glm::rotate(modelTransform, 90.0f, glm::vec3(0.0, 1.0, 0.0));
+    transform = projection * view * modelTransform;
+    m_program->SetUniform("transform", transform);
+    m_program->SetUniform("modelTransform", modelTransform);
+    m_model->Draw(m_program.get());
 
-        }
+    //bag 3
+    modelTransform = 
+        glm::translate(glm::mat4(1.0f), glm::vec3(-4.0f, -3.0f, 2.0f)) *
+        glm::scale(glm::mat4(1.0f), glm::vec3(0.5f, 0.5f, 0.5f));
+
+    modelTransform = glm::rotate(modelTransform, 60.0f, glm::vec3(0.0, 0.0, 1.0));
+    transform = projection * view * modelTransform;
+    m_program->SetUniform("transform", transform);
+    m_program->SetUniform("modelTransform", modelTransform);
+    m_model->Draw(m_program.get());
+
+    //bag 4
+    modelTransform = 
+        glm::translate(glm::mat4(1.0f), glm::vec3(-2.0f, -3.0f, -1.0f)) *
+        glm::scale(glm::mat4(1.0f), glm::vec3(0.5f, 0.5f, 0.5f));
+
+    modelTransform = glm::rotate(modelTransform, 90.0f, glm::vec3(1.0, 1.0, 1.0));
+    transform = projection * view * modelTransform;
+    m_program->SetUniform("transform", transform);
+    m_program->SetUniform("modelTransform", modelTransform);
+    m_model->Draw(m_program.get());
+
+    //bag 5
+    modelTransform = 
+        glm::translate(glm::mat4(1.0f), glm::vec3(2.0f, 1.5f, 2.0f)) *
+        glm::scale(glm::mat4(1.0f), glm::vec3(0.5f, 0.5f, 0.5f));
+
+    modelTransform = glm::rotate(modelTransform, 35.0f, glm::vec3(1.0, 1.0, 1.0));
+    transform = projection * view * modelTransform;
+    m_program->SetUniform("transform", transform);
+    m_program->SetUniform("modelTransform", modelTransform);
+    m_model->Draw(m_program.get());
+
+    //bag 6
+    modelTransform = 
+        glm::translate(glm::mat4(1.0f), glm::vec3(2.0f, -3.0f, 2.0f)) *
+        glm::scale(glm::mat4(1.0f), glm::vec3(0.5f, 0.5f, 0.5f));
+
+    modelTransform = glm::rotate(modelTransform, -70.0f, glm::vec3(1.0, 1.0, 1.0));
+    transform = projection * view * modelTransform;
+    m_program->SetUniform("transform", transform);
+    m_program->SetUniform("modelTransform", modelTransform);
+    m_model->Draw(m_program.get());
+    }
+}
+FullScreenTexturedQuad* fullScreen ;
+bool Context::GlobalInit()
+{
+
+    m_globalProgram = Program::Create("./shader/lightingGlobal.vs", "./shader/lightingGlobal.fs");
+    if (!m_globalProgram)
+            return false;
+
+    //glClearColor(0.0f, 0.1f, 0.2f, 0.0f); // 컬러 프레임버퍼 화면을 클리어할 색상 지정
+
+    scene = new Scene;
+    fullScreen = new FullScreenTexturedQuad;
+    fullScreen->Settings(m_width, m_height);
+    scene->build();
+    m_globalProgram->Set(m_width, m_height);
+
+    return true;
 
 }
 
+void Context::GlobalRender()
+{
+    m_globalProgram->Use();
+    std::vector<vec4> image(m_width * m_height);
+
+
+
+    scene->render(image);
+    fullScreen->LoadTexture(image);
+    fullScreen->Draw();
+
+
+}
 void Context::ProcessInput(GLFWwindow* window) {
     if (!m_cameraControl)
         return;
@@ -300,7 +377,7 @@ void Context::ProcessInput(GLFWwindow* window) {
     m_cameraPos -= cameraSpeed * cameraUp;
     }
 
-    void Context::Reshape(int width, int height) {
+void Context::Reshape(int width, int height) {
     m_width = width;
     m_height = height;
     glViewport(0, 0, m_width, m_height);

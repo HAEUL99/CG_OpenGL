@@ -5,7 +5,7 @@ set(CMAKE_CXX_STANDARD 17)
 
 set(WINDOW_NAME "opengl example!")
 set(WINDOW_WIDTH 940) #940
-set(WINDOW_HEIGHT 540) 
+set(WINDOW_HEIGHT 570) 
 
 project(${CMAKE_PROJECT_NAME})
 add_executable(${PROJECT_NAME} 
