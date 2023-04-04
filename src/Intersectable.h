@@ -2,6 +2,7 @@
 #define MARKER1
 #include "framework.h"
 
+/*
 enum MaterialType { ROUGH, REFLECTIVE, REFRACTIVE };
 
 struct MaterialGlobal {
@@ -22,11 +23,6 @@ struct RoughMaterial : MaterialGlobal {
 	}
 };
 
-/*
-vec3 operator/(vec3 num, vec3 denom) {
-	return vec3(num.x / denom.x, num.y / denom.y, num.z / denom.z);
-}
-*/
 
 struct ReflectiveMaterial : MaterialGlobal {
 	ReflectiveMaterial(vec3 n, vec3 kappa) : MaterialGlobal(REFLECTIVE) {
@@ -51,17 +47,12 @@ struct Hit {
 	MaterialGlobal * material;
 	Hit() { t = -1; }
 };
-
+*/
 struct Ray {
-	vec3 start, dir;
-	Ray(vec3 _start, vec3 _dir) { start = _start; dir = normalize(_dir); }
-};
-
-class Intersectable {
-protected:
-	MaterialGlobal* material;
-public:
-	virtual Hit intersect(const Ray& ray) = 0;
+	Vec3f start, dir;
+	Ray(Vec3f _start, Vec3f _dir) 
+		{ start = _start; //Vec3f ddir = _dir * (1 / sqrtf(_dir * _dir)); 
+		dir = _dir; }
 };
 
 

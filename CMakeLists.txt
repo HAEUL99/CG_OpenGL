@@ -23,11 +23,13 @@ add_executable(${PROJECT_NAME}
     src/Scene.cpp src/Scene.h
     src/Intersectable.h
     src/framework.h
-    src/Sphere.cpp src/Sphere.h
+    src/Sphere.h
     src/Camera.cpp src/Camera.h
     src/FullScreenTexutredQuad.cpp src/FullScreenTexutredQuad.h
     src/objModel.cpp src/objModel.h
-    src/Geometry.h
+    src/Light.h
+    src/MaterialGlobal.h
+    src/ModelBase.h
 
 
 )

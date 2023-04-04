@@ -73,7 +73,7 @@ void Program::Set(int windowWidth, int windowHeight)
 
 }
 
-void Program::LoadTexture(std::vector<vec4>& image, int windowWidth, int windowHeight) 
+void Program::LoadTexture(std::vector<Vec4f>& image, int windowWidth, int windowHeight) 
 {
 		glBindTexture(GL_TEXTURE_2D, textureId);    // binding
 		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, windowWidth, windowHeight, 0, GL_RGBA, GL_FLOAT, &image[0]); // To GPU

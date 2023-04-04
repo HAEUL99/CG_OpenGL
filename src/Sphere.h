@@ -1,11 +1,9 @@
-﻿#pragma once
+#pragma once
 
-#include "Geometry.h"
-#include "Material.h"
+#include "framework.h"
+#include "MaterialGlobal.h"
 #include "ModelBase.h"
 
-#include "../imgui-sfml/imgui.h"
-#include "../imgui-sfml/imgui-SFML.h"
 
 class Sphere : public ModelBase
 {
@@ -14,7 +12,7 @@ private:
 	float radius;
 
 public:
-	Sphere(const std::string& name, const Vec3f& c, const float& r, const Material& mat) 
+	Sphere(const std::string& name, const Vec3f& c, const float& r, const MaterialGlobal& mat) 
 		: ModelBase{ name, mat }, center { c }, radius{ r }
 	{
 
@@ -42,12 +40,5 @@ public:
 		return false;
 	}
 
-	virtual bool EditModel() override
-	{
-		bool e1 = material.EditMaterial();
-		bool e2 = ImGui::DragFloat3("sphere position", &this->center.x, 0.1f);
-		bool e3 = ImGui::SliderFloat("sphere radius", &this->radius, 0.1f, 10.0f);
-		return e1 | e2 | e3;
-	}
 	
 };

@@ -322,7 +322,7 @@ void Context::Render() {
     m_model->Draw(m_program.get());
     }
 }
-FullScreenTexturedQuad* fullScreen ;
+FullScreenTexturedQuad* fullScreen;
 bool Context::GlobalInit()
 {
 
@@ -345,7 +345,7 @@ bool Context::GlobalInit()
 void Context::GlobalRender()
 {
     m_globalProgram->Use();
-    std::vector<vec4> image(m_width * m_height);
+    std::vector<Vec4f> image(m_width * m_height);
 
 
 
