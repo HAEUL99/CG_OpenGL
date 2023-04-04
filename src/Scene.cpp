@@ -25,8 +25,8 @@ void Scene::build()
 
 	vec3 ks(2, 2, 2);
 	
-	objects.push_back(new Sphere(vec3(-0.55, 0, 0), 0.5, 
-						new RoughMaterial(vec3(0.3, 0.2, 0.1), ks, 50)));
+	//bjects.push_back(new Sphere(vec3(-0.55, 0, 0), 0.5, 
+	//						new RoughMaterial(vec3(0.3, 0.2, 0.1), ks, 50)));
 	/*
 	objects.push_back(new Sphere(vec3(0.55, 0,  0), 0.5, 
 						new RoughMaterial(vec3(0.1, 0.2, 0.3), ks, 100)));
@@ -37,12 +37,12 @@ void Scene::build()
 						new RefractiveMaterial(vec3(1.2, 1.2, 1.2))));
 	*/
 				
-	objects.push_back(new Sphere(vec3(0.55, 0,  0), 0.5, 
-						new ReflectiveMaterial(vec3(0.14, 0.16, 0.13), vec3(4.1, 2.3, 3.1))));
+	//objects.push_back(new Sphere(vec3(0.55, 0,  0), 0.5, 
+	//					new ReflectiveMaterial(vec3(0.14, 0.16, 0.13), vec3(4.1, 2.3, 3.1))));
 
 	
 	//ObjModel obj = new ObjModel{ std::string{ "cow" }, "D:/git/CG/opengl_example/model/cow.obj", new RoughMaterial(vec3(0.3, 0.2, 0.1), ks, 50) }; 
-	//objects.push_back(obj);
+	objects.push_back(new ObjModel{ std::string{ "cow" }, "D:/git/CG/opengl_example/model/cube.obj", new RoughMaterial(vec3(0.3, 0.2, 0.1), ks, 50) } );
 }
 
 void Scene::render(std::vector<vec4>& image) {
