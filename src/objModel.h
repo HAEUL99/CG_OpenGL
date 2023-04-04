@@ -7,17 +7,18 @@
 #include "framework.h"
 class ObjModel : public Intersectable {
 private:
-	std::vector<vec3> verts;
-	std::vector<vec3> faces;
+	
 	vec3 bboxMin;
 	vec3 bboxMax;
     std::string name;
 public:
+	std::vector<vec3> verts;
+	std::vector<glm::ivec3> faces;
 	ObjModel(std::string& name, char* filename, MaterialGlobal* m);
 	void LoadModel(char *filename);
 
-	//int nverts() const;                          // number of vertices
-	//int nfaces() const;                          // number of triangles
+	int nverts() const;                          // number of vertices
+	int nfaces() const;                          // number of triangles
 
 	bool ray_triangle_intersect(const int &fi, const vec3 &orig, const vec3 &dir, float &tnear, vec3& normal) const;
 	bool ray_aabb_intersect(const vec3 &orig, const vec3 &dir) const;
@@ -33,5 +34,3 @@ public:
     Hit intersect(const Ray& ray);
 
 };
-
-//std::ostream& operator<<(std::ostream& out, ObjModel &m);
