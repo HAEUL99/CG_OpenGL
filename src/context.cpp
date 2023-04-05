@@ -60,11 +60,6 @@ bool Context::Init() {
 void Context::Render() {
 
     if (ImGui::Begin("ui window")) {
-        if (ImGui::CollapsingHeader("Object", ImGuiTreeNodeFlags_DefaultOpen)) {
-            ImGui::DragFloat3("position", glm::value_ptr(m_obj.position), 0.01f);
-            ImGui::DragFloat3("direction", glm::value_ptr(m_obj.direction), 0.01f);
-        }
-
         if(ImGui::ColorEdit4("clear color", glm::value_ptr(m_clearColor)))
         {
             glClearColor(m_clearColor.x, m_clearColor.y, m_clearColor.z, m_clearColor.w);
@@ -99,12 +94,12 @@ void Context::Render() {
         }
 
 
-    
+    /*
         if (ImGui::CollapsingHeader("material", ImGuiTreeNodeFlags_DefaultOpen)) {
             //ImGui::DragFloat("m.shininess", &m_material.shininess, 1.0f, 1.0f, 256.0f);
         }
         ImGui::Checkbox("animation", &m_animation);
-
+    */
     }
     ImGui::End();
 
@@ -137,12 +132,6 @@ void Context::Render() {
     m_simpleProgram->SetUniform("transform", projection * view * lightModelTransform1);
     m_box->Draw(m_simpleProgram.get());
 
-    // auto lightModelTransform2 = glm::translate(glm::mat4(1.0), m_light2.position) * glm::scale(glm::mat4(1.0), glm::vec3(0.1f));
-    // m_simpleProgram->Use();
-    // m_simpleProgram->SetUniform("color", glm::vec4(m_light2.ambient + m_light2.diffuse, 1.0f));
-    // m_simpleProgram->SetUniform("transform", projection * view * lightModelTransform2);
-    // m_box->Draw(m_simpleProgram.get());
-
     
     m_program->Use();
     m_program->SetUniform("viewPos", m_cameraPos);
@@ -157,15 +146,16 @@ void Context::Render() {
     m_program->SetUniform("pointLights[0].constant", 1.0f);
     m_program->SetUniform("pointLights[0].linear", 0.09f);
     m_program->SetUniform("pointLights[0].quadratic", 0.032f);
+    m_program->SetUniform("pointLights[0].IsOn", true);
 
-    // if(IsLight == false)
-    // {
-    //     m_program->SetUniform("pointLights[0].attenuation", GetAttenuationCoeff(0));
-    // }
-    // if(IsLight == true)
-    // {
-    //     m_program->SetUniform("pointLights[0].attenuation", GetAttenuationCoeff(m_light.distance));
-    // }
+    if(IsLight == false)
+    {
+       m_program->SetUniform("pointLights[0].IsOn", false);
+    }
+    if(IsLight == true)
+    {
+        m_program->SetUniform("pointLights[0].IsOn", true);
+    }
     
     //light1
     m_program->SetUniform("pointLights[1].position", m_light1.position);
@@ -175,34 +165,16 @@ void Context::Render() {
     m_program->SetUniform("pointLights[1].constant", 1.0f);
     m_program->SetUniform("pointLights[1].linear", 0.09f);
     m_program->SetUniform("pointLights[1].quadratic", 0.032f);
-    // if(IsLight1 == false)
-    // {
-    //     m_program1->SetUniform("pointLights[1].attenuation", GetAttenuationCoeff(0));
-    // }
-    // if(IsLight1 == true)
-    // {
-    //     m_program1->SetUniform("pointLights[1].attenuation", GetAttenuationCoeff(m_light1.distance));
-    // }
-
+    m_program->SetUniform("pointLights[1].IsOn", true);
+    if(IsLight1 == false)
+    {
+       m_program->SetUniform("pointLights[1].IsOn", false);
+    }
+    if(IsLight1 == true)
+    {
+        m_program->SetUniform("pointLights[1].IsOn", true);
+    }
         
-
-    //light2   
-    // m_program->SetUniform("light2.position", m_light2.position);
-    // m_program->SetUniform("light2.ambient", m_light2.ambient);
-    // m_program->SetUniform("light2.diffuse", m_light2.diffuse);
-    // m_program->SetUniform("light2.specular", m_light2.specular);
-
-    // if(IsLight2 == false)
-    // {
-    //     m_program->SetUniform("light2.attenuation", GetAttenuationCoeff(0));
-    // }
-    // if(IsLight2 == true)
-    // {
-    //     m_program->SetUniform("light2.attenuation", GetAttenuationCoeff(m_light2.distance));
-    // }
-
-       
-
     m_program->SetUniform("material.diffuse", 0.5f);
     m_program->SetUniform("material.specular", 1);
     //m_program->SetUniform("material.shininess", m_material.shininess);
@@ -248,13 +220,7 @@ void Context::Render() {
     m_planeMaterial->SetToProgram(m_program.get());
     m_box->Draw(m_program.get());
 
-    // auto modelTransform = glm::mat4(1.0f);
-    // obj tranform
-    // modelTransform = glm::translate(glm::mat4(1.0f), glm::vec3(m_obj.position.x, m_obj.position.y, m_obj.position.z));
-    // modelTransform = glm::rotate(modelTransform, glm::radians(m_obj.direction.x), glm::vec3(1.0, 0.0, 0.0));
-    // modelTransform = glm::rotate(modelTransform, glm::radians(m_obj.direction.y), glm::vec3(0.0, 1.0, 0.0));
-    // modelTransform = glm::rotate(modelTransform, glm::radians(m_obj.direction.z), glm::vec3(0.0, 0.0, 1.0));
-    
+
     {
         //bag 1
     modelTransform = 
@@ -322,6 +288,7 @@ void Context::Render() {
     m_model->Draw(m_program.get());
     }
 }
+
 FullScreenTexturedQuad* fullScreen;
 bool Context::GlobalInit()
 {

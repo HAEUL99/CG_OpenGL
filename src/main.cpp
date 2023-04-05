@@ -99,16 +99,10 @@ int main(int argc, const char** argv)
     ImGui_ImplOpenGL3_CreateFontsTexture();
     ImGui_ImplOpenGL3_CreateDeviceObjects();
 
-    IsLocal = false;
-    auto context;
-    if(IsLocal)
-    {
-        context = Context::Create();
-    }
-    else
-    {
-        context = Context::CreateGlobal();
-    }
+    //local vs global
+    bool isLocal = false;
+
+    auto context = Context::Create(isLocal);
     if (!context) {
         SPDLOG_ERROR("failed to create context");
         glfwTerminate();
@@ -125,16 +119,24 @@ int main(int argc, const char** argv)
 	glfwSetScrollCallback(window, OnScroll);
     
     // glfw 루프 실행, 윈도우 close 버튼을 누르면 정상 종료
+    
     SPDLOG_INFO("Start main loop");
     while (!glfwWindowShouldClose(window)) {
         glfwPollEvents();
 
         ImGui_ImplGlfw_NewFrame();
         ImGui::NewFrame();
+        if(isLocal)
+        {
+            context->ProcessInput(window);
+            context->Render();
+        }
+        else
+        {
+            context->GlobalRender();
 
-        context->ProcessInput(window);
-        context->Render();
-
+        }
+        
         ImGui::Render();
         ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
         glfwSwapBuffers(window);

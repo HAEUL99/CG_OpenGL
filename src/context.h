@@ -9,31 +9,36 @@
 #include "texture.h"
 #include "mesh.h"
 #include "model.h"
+#include "Scene.h"
+#include "FullScreenTexutredQuad.h"
+
 
 CLASS_PTR(Context)
 class Context {
 public:
-    static ContextUPtr Create();
+    static ContextUPtr Create(bool isLocal);
     void Render();  
+    void GlobalRender();
     void ProcessInput(GLFWwindow* window);  
     void Reshape(int width, int height);
     void MouseMove(double x, double y);
     void MouseButton(int button, int action, double x, double y);
-
+    
 
 private:
     Context() {}
     bool Init();
+    bool GlobalInit();
     ProgramUPtr m_program;
     ProgramUPtr m_program1;
     ProgramUPtr m_simpleProgram;
-
+    ProgramUPtr m_globalProgram;
+    Scene* scene;
 
 	MeshUPtr m_box;
     ModelUPtr m_model;
     TextureUPtr m_texture;
     TextureUPtr m_texture2;
-
 
     // animation
     bool m_animation { true };
@@ -64,16 +69,6 @@ private:
     };
     Light m_light;
     Light m_light1;    
-    Light m_light2;
-
-
-    // material parameter
-    // struct Material {
-    //     TextureUPtr diffuse;
-    //     TextureUPtr specular;
-    //     float shininess { 32.0f };
-    // };
-    // Material m_material;
 
     MaterialPtr m_planeMaterial;
 

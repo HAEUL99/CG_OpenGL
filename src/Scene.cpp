@@ -22,7 +22,7 @@ void Scene::build()
 	camera.set(eye, lookat, vup, fov);
 
 	const MaterialGlobal shinyIvoryMaterial{ Vec4f{0.6f, 0.3f, 0.1f, 0.0f }, Vec3f{0.4f,0.4f,0.3f}, 50.0f, 1.0f };
-	const MaterialGlobal dullRedMaterial{ Vec4f{0.7f, 0.1f, 0.0f, 0.0f }, Vec3f{0.5f,0.1f,0.1f}, 5.0f, 1.0f };
+	const MaterialGlobal dullGreenMaterial{ Vec4f{0.7f, 0.1f, 0.0f, 0.0f }, Vec3f{0.2f,0.5f,0.1f}, 5.0f, 1.0f };
 	const MaterialGlobal mirrorMaterial{ Vec4f{0.0f, 10.0f, 0.8f, 0.0f }, Vec3f{1.0f,1.0f,1.0f}, 1425.0f, 1.0f };
 	const MaterialGlobal glassMaterial{ Vec4f{0.0f, 0.5f, 0.1f, 0.8f }, Vec3f{0.6f,0.7f,0.8f}, 125.0f, 1.5f };
 
@@ -30,17 +30,18 @@ void Scene::build()
 		// Add objects in scene
 	//scene->AddSphere({ std::string{ "Sphere 1" }, Vec3f(-3.0f, 0.0f, 0.0f), 2.0f, shinyIvoryMaterial });
 	
-	//objects.emplace_back(new Sphere{ std::string{ "Sphere 1" }, Vec3f(0.0f, 0.0f, 0.0f), 2.0f, shinyIvoryMaterial  });
-	objects.push_back(new ObjModel{ std::string{ "Duck" }, "D:/git/CG/opengl_example/model/cow.obj", mirrorMaterial });
-	//scene->AddSphere({ std::string{ "Sphere 2" },Vec3f(-1.0f,-1.5f, 4.0f), 2.0f, glassMaterial });
-	//scene->AddSphere({ std::string{ "Sphere 3" },Vec3f(1.5f,-0.5f, -2.0f), 3.0f, dullRedMaterial });
+	objects.push_back(new Sphere{ std::string{ "Sphere 1" }, Vec3f(0.0f, 0.0f, 0.0f), 2.0f, shinyIvoryMaterial  });
+	objects.push_back(new ObjModel{ std::string{ "Duck" }, "D:/git/CG/opengl_example/model/duck.obj", mirrorMaterial });
+	///scene->AddSphere({ std::string{ "Sphere 2" },Vec3f(-1.0f,-1.5f, 4.0f), 2.0f, glassMaterial });
+	objects.push_back(new Sphere{ std::string{ "Sphere 2" }, Vec3f(-4.0f, 4.0f, 2.0f), 1.0f, dullGreenMaterial  });
+	objects.push_back(new Sphere{ std::string{ "Sphere 3" }, Vec3f(-3.0f, 2.0f, -2.0f), 2.0f, mirrorMaterial  });
 	//scene->AddSphere({ std::string{ "Sphere 4" },Vec3f(7.0f, 5.0f, -2.0f), 4.0f, mirrorMaterial });
 
 	//scene->AddObjModel(std::string{ "Duck" }, "D:/raystep/TinyRaytracer_SFML/TinyRatracer_SFML/resources/cow.obj", shinyIvoryMaterial);
 
 	// Add lights in scene
 	//scene->AddLight({ Vec3f(-20.0f, 20.0f, 20.0f), 1.5f });
-	lights.emplace_back(new Light{ Vec3f(0.0f, 0.0f, 0.0f), 1.5f  });
+	lights.push_back(new Light{ Vec3f(4.0f, 4.0f, 4.0f), 1.5f });
 	mCameraForward = Vec3f(0.0f,0.0f,-1.0f); 
 	mOrbitCameraParameter = Vec3f(15.0f, -90.0f * 3.1415917f / 180.0f, 0.0f); 
 
@@ -53,7 +54,7 @@ void Scene::build()
 	mCameraPosition = -mOrbitCameraParameter.x * mCameraForward;
 
 	mCameraRight = cross(mCameraForward, Vec3f{ 0.0f,1.0f,0.0f }).normalize();
-	mCameraUp = cross(mCameraRight, mCameraForward).normalize();
+	mCameraUp = cross(mCameraRight, -mCameraForward).normalize();
 
 	//scene->AddLight({ Vec3f(30.0f, 50.0f,-25.0f), 1.8f });
 	//scene->AddLight({ Vec3f(30.0f, 20.0f, 30.0f), 1.7f });
@@ -96,6 +97,7 @@ void Scene::render(std::vector<Vec4f>& image) {
 	}
 */
 	
+	
 	for (int Y = 0; Y < WINDOW_HEIGHT; Y++) 
 	{
 		#pragma omp parallel for
@@ -119,61 +121,7 @@ void Scene::render(std::vector<Vec4f>& image) {
 	
 
 }
-/*
-Hit Scene::firstIntersect(Ray ray) 
-{
-	Hit bestHit;
-	for (Intersectable * object : objects) {
-		Hit hit = object->intersect(ray); //  hit.t < 0 if no intersection
-		if (hit.t > 0 && (bestHit.t < 0 || hit.t < bestHit.t))  bestHit = hit;
-	}
-	if (dot(ray.dir, bestHit.normal) > 0) bestHit.normal = bestHit.normal * (-1);
-	return bestHit;
-}
 
-bool Scene::shadowIntersect(Ray ray) {	// for directional lights
-	for (Intersectable * object : objects) if (object->intersect(ray).t > 0) return true;
-	return false;
-}
-
-vec3 Scene::trace(Ray ray, int depth) {
-	if (depth > 5) return La;
-	Hit hit = firstIntersect(ray);
-	if (hit.t < 0) return La;
-
-	if (hit.material->type == ROUGH) {
-		vec3 outRadiance = hit.material->ka * La;
-		for (Light * light : lights) {
-			Ray shadowRay(hit.position + hit.normal * epsilon, light->direction);
-			float cosTheta = dot(hit.normal, light->direction);
-			if (cosTheta > 0 && !shadowIntersect(shadowRay)) {	// shadow computation
-				outRadiance = outRadiance + light->Le * hit.material->kd * cosTheta;
-				vec3 halfway = normalize(-ray.dir + light->direction);
-				float cosDelta = dot(hit.normal, halfway);
-				if (cosDelta > 0) outRadiance = outRadiance + light->Le * hit.material->ks * powf(cosDelta, hit.material->shininess);
-			}
-		}
-		return outRadiance;
-	}
-
-	float cosa = -dot(ray.dir, hit.normal);
-	vec3 one(1, 1, 1);
-	vec3 F = hit.material->F0 + (one - hit.material->F0) * pow(1 - cosa, 5);
-	vec3 reflectedDir = ray.dir - hit.normal * dot(hit.normal, ray.dir) * 2.0f;
-	vec3 outRadiance = trace(Ray(hit.position + hit.normal * epsilon, reflectedDir), depth + 1) * F;
-
-	if (hit.material->type == REFRACTIVE) {
-		float disc = 1 - (1 - cosa * cosa) / hit.material->ior / hit.material->ior; // scalar n
-		if (disc >= 0) {
-			vec3 refractedDir = ray.dir / hit.material->ior + hit.normal * (cosa / hit.material->ior - sqrt(disc));
-			outRadiance = outRadiance +
-				trace(Ray(hit.position - hit.normal * epsilon, refractedDir), depth + 1) * (one - F);
-		}
-	}
-	return outRadiance;
-}
-
-*/
 Vec3f Scene::CastRay(const Vec3f & origin, const Vec3f & direction, size_t currentDepth) const
 {
 	Vec3f hit, normal;

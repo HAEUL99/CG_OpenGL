@@ -34,7 +34,7 @@ private:
 	Vec3f mCameraUp;
 
 	Camera camera;
-	int maxDepth =3;
+	int maxDepth = 3;
 	float fov;
 };
 #endif

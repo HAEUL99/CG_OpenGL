@@ -18,6 +18,8 @@ struct PointLight {
     vec3 ambient;
     vec3 diffuse;
     vec3 specular;
+
+    bool IsOn;
 };
 
 //uniform Light light;
@@ -69,7 +71,11 @@ void main() {
     // phase 2: Point lights
     for(int i = 0; i < 2; i++)
     {
-        result += CalcPointLight(pointLights[i], norm, position, viewDir);  
+        if(pointLights[i].IsOn == true) 
+        {
+            result += CalcPointLight(pointLights[i], norm, position, viewDir); 
+        }
+         
     }  
     // phase 3: Spot light
     //result += CalcSpotLight(spotLight, norm, FragPos, viewDir);    
