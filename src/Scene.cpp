@@ -31,8 +31,9 @@ void Scene::build()
 	//scene->AddSphere({ std::string{ "Sphere 1" }, Vec3f(-3.0f, 0.0f, 0.0f), 2.0f, shinyIvoryMaterial });
 	
 	objects.push_back(new Sphere{ std::string{ "Sphere 1" }, Vec3f(0.0f, 0.0f, 0.0f), 2.0f, shinyIvoryMaterial  });
-	objects.push_back(new ObjModel{ std::string{ "Duck" }, "D:/git/CG/opengl_example/model/duck.obj", mirrorMaterial });
-	///scene->AddSphere({ std::string{ "Sphere 2" },Vec3f(-1.0f,-1.5f, 4.0f), 2.0f, glassMaterial });
+	
+	//objects.push_back(new ObjModel{ std::string{ "Duck" }, "D:/git/CG/opengl_example/model/duck.obj", mirrorMaterial });
+	
 	objects.push_back(new Sphere{ std::string{ "Sphere 2" }, Vec3f(-4.0f, 4.0f, 2.0f), 1.0f, dullGreenMaterial  });
 	objects.push_back(new Sphere{ std::string{ "Sphere 3" }, Vec3f(-3.0f, 2.0f, -2.0f), 2.0f, mirrorMaterial  });
 	//scene->AddSphere({ std::string{ "Sphere 4" },Vec3f(7.0f, 5.0f, -2.0f), 4.0f, mirrorMaterial });
@@ -41,7 +42,7 @@ void Scene::build()
 
 	// Add lights in scene
 	//scene->AddLight({ Vec3f(-20.0f, 20.0f, 20.0f), 1.5f });
-	lights.push_back(new Light{ Vec3f(4.0f, 4.0f, 4.0f), 1.5f });
+	lights.push_back(new Light{ Vec3f(0.0f, 0.0f, 10.0f), 1.5f });
 	mCameraForward = Vec3f(0.0f,0.0f,-1.0f); 
 	mOrbitCameraParameter = Vec3f(15.0f, -90.0f * 3.1415917f / 180.0f, 0.0f); 
 
@@ -51,61 +52,23 @@ void Scene::build()
 	mCameraForward.z = sinf(mOrbitCameraParameter.y) * cosf(mOrbitCameraParameter.z);
 	mCameraForward = mCameraForward.normalize();
 
-	mCameraPosition = -mOrbitCameraParameter.x * mCameraForward;
+	mCameraPosition = -mOrbitCameraParameter.x * mCameraForward + Vec3f(0.0f, 1.0f, 1.0f);
 
 	mCameraRight = cross(mCameraForward, Vec3f{ 0.0f,1.0f,0.0f }).normalize();
 	mCameraUp = cross(mCameraRight, -mCameraForward).normalize();
 
-	//scene->AddLight({ Vec3f(30.0f, 50.0f,-25.0f), 1.8f });
-	//scene->AddLight({ Vec3f(30.0f, 20.0f, 30.0f), 1.7f });
-
-	//objects.push_back(new Sphere(vec3(-0.55, 0, 0), 0.5, 
-	//						new RoughMaterial(vec3(0.3, 0.2, 0.1), ks, 50)));
-	/*
-	objects.push_back(new Sphere(vec3(0.55, 0,  0), 0.5, 
-						new RoughMaterial(vec3(0.1, 0.2, 0.3), ks, 100)));
-	objects.push_back(new Sphere(vec3(0, 0.5, -0.8), 0.5,
-						new RoughMaterial(vec3(0.3, 0, 0.2), ks, 20)));
-	*/
-	//objects.push_back(new Sphere(vec3(0, 0.3,  0.6), 0.5,
-	//					new RefractiveMaterial(vec3(1.2, 1.2, 1.2))));
 	
-				
-	//objects.push_back(new Sphere(vec3(0.55, 0,  0), 0.5, 
-	//					new ReflectiveMaterial(vec3(0.14, 0.16, 0.13), vec3(2.1, 2.3, 2.1))));
-
-	
-	//ObjModel obj = new ObjModel{ std::string{ "cow" }, "D:/git/CG/opengl_example/model/cow.obj", new RoughMaterial(vec3(0.3, 0.2, 0.1), ks, 50) }; 
-	//objects.push_back(new ObjModel{ std::string{ "cow" }, "D:/git/CG/opengl_example/model/cube.obj",new RoughMaterial(vec3(0.3, 0.7, 0.4), ks, 50)} );
 	
 }
 
 void Scene::render(std::vector<Vec4f>& image) {
 
-/*
-	unsigned int renderW = 64;
-	unsigned int renderH = 48;
-
-	std::vector<vec3> framebuffer(renderH*renderW);
-	for (size_t j = 0; j < renderH; j++) {
-		for (size_t i = 0; i < renderW; i++) {
-			//image[i + j * renderW] = vec3(j / float(renderH), i / float(renderW), 0);
-			vec3 color = trace(camera.getRay(renderW, renderH), 0);
-			image[i + j * renderW] = vec4(color.x, color.y, color.z, 1);
-			framebuffer[i + j * renderW] = vec3(color.x, color.y, color.z);
-		}
-	}
-*/
-	
-	
 	for (int Y = 0; Y < WINDOW_HEIGHT; Y++) 
 	{
 		#pragma omp parallel for
 		for (int X = 0; X < WINDOW_WIDTH; X++) 
 		{
 			
-			//vec3 color = trace(camera.getRay(X, Y), 0);
-			//Vec3f color = CastRay(camera.getRay(X, Y).start, camera.getRay(X, Y).dir, 0);
 			float x = (2 * (X + 0.5f) / (float)WINDOW_WIDTH - 1) * tan(fov / 2.0f)*WINDOW_WIDTH / (float)WINDOW_HEIGHT;
 			float y = -(2 * (Y + 0.5f) / (float)WINDOW_HEIGHT - 1) * tan(fov / 2.0f);
 			Vec3f dir = ((mCameraRight * x) + (mCameraUp * y) + mCameraForward).normalize();
@@ -131,7 +94,6 @@ Vec3f Scene::CastRay(const Vec3f & origin, const Vec3f & direction, size_t curre
 	if (currentDepth > maxDepth || !SceneIntersect(origin, direction, hit, normal, material))
 	{
 		return Vec3f(0.2f, 0.2f, 0.2f);
-		//return mScene->GetEnvironmentColor(direction);
 	}
 	
 
@@ -204,21 +166,82 @@ bool Scene::SceneIntersect(const Vec3f & origin, const Vec3f direction,
 		}
 	}
 
+	float checkerboard_dists[4];
 	// Add checkerboard
-	float checkerboard_dist = std::numeric_limits<float>::max();
+	checkerboard_dists[0] = std::numeric_limits<float>::max();
 	if (fabs(direction.y) > 1e-3) {
-		float d = -(origin.y + 4) / direction.y; // the checkerboard plane has equation y = -4
+		float d = -(origin.y + 8) / direction.y; // the checkerboard plane has equation y = -4
 		Vec3f pt = origin + direction * d;
 		if (d > 0 && fabs(pt.x) < 10 && pt.z<6 && pt.z>-14 && d < modelDist) {
-			checkerboard_dist = d;
+		//if(d>0 && d< modelDist && std::abs(pt.x)<10 && pt.z<0 && pt.z>-14){
+			checkerboard_dists[0] = d;
 			hit = pt;
 			normal = Vec3f(0, 1, 0);
-			Vec3f diffuseColor = (int(.5*hit.x + 1000) + int(.5*hit.z)) & 1 ? Vec3f(1, 1, 1) : Vec3f(1, .7, .3);
+			Vec3f diffuseColor;
+			diffuseColor = (int(.5*hit.x + 1000) + int(.5*hit.z)) & 1 ? Vec3f(1, 1, 1) : Vec3f(0.1f, 0.6f, 0.3f);
+			
+			
 			diffuseColor = diffuseColor * 0.3f;
 			material.SetDiffuseColor(diffuseColor);
 		}
 	}
-	return std::min(modelDist, checkerboard_dist) < 1000;
+
+	
+	
+
+
+	checkerboard_dists[1] = std::numeric_limits<float>::max();
+	if (fabs(direction.x) > 1e-3) {
+		float d = -(origin.x + 10) / direction.x; // the checkerboard plane has equation x = -10
+		Vec3f pt = origin + direction * d;
+		if (d > 0 && fabs(pt.y) < 8 && pt.z<6 && pt.z>-14 && d < modelDist) {
+			checkerboard_dists[1] = d;
+			hit = pt;
+			normal = Vec3f(1, 0, 0);
+			Vec3f diffuseColor = (int(.5*hit.y + 1000) + int(.5*hit.z)) & 1 ? Vec3f(1, 1, 1) : Vec3f(0.1f, 0.6f, 0.3f);
+			diffuseColor = diffuseColor * 0.3f;
+			material.SetDiffuseColor(diffuseColor);
+		}
+	}
+
+	
+	checkerboard_dists[2] = std::numeric_limits<float>::max();
+	if (fabs(direction.x) > 1e-3) {
+		float d = -(origin.x - 10) / direction.x; // the checkerboard plane has equation x = 10
+		Vec3f pt = origin + direction * d;
+		if (d > 0 && fabs(pt.y) < 8 && pt.z<6 && pt.z>-14 && d < modelDist) {
+			checkerboard_dists[2] = d;
+			hit = pt;
+			normal = Vec3f(-1, 0, 0);
+			Vec3f diffuseColor = (int(.5*hit.y + 1000) + int(.5*hit.z)) & 1 ? Vec3f(1, 1, 1) : Vec3f(0.1f, 0.6f, 0.3f);
+			diffuseColor = diffuseColor * 0.3f;
+			material.SetDiffuseColor(diffuseColor);
+		}
+	}
+
+	checkerboard_dists[3] = std::numeric_limits<float>::max();
+	if (fabs(direction.z) > 1e-3) {
+		float d = -(origin.z + 14) / direction.z; // the checkerboard plane has equation z = -14
+		Vec3f pt = origin + direction * d;
+		if (d > 0 && fabs(pt.y) < 8 && pt.x<10 && pt.x>-10 && d < modelDist) {
+			checkerboard_dists[3] = d;
+			hit = pt;
+			normal = Vec3f(0, 0, 1);
+			Vec3f diffuseColor = (int(.5*hit.y + 1000) + int(.5*hit.x)) & 1 ? Vec3f(1, 1, 1) : Vec3f(0.1f, 0.6f, 0.3f);
+			diffuseColor = diffuseColor * 0.3f;
+			material.SetDiffuseColor(diffuseColor);
+		}
+	}
+
+
+	// checkerboard_dist1, checkerboard_dist2
+	float minVal = modelDist;
+	for(int i = 0; i < 4; i++)
+	{
+		minVal = std::min(minVal, checkerboard_dists[i]);
+
+	}
+	return minVal < 1000;
 }
 
 Vec3f Scene::Reflect(const Vec3f & l, const Vec3f & n) const
