@@ -13,12 +13,10 @@ ObjModel::ObjModel(const std::string& name, const char * filename, const Materia
 	LoadModel(filename);
 }
 
-// fills verts and faces arrays, supposes .obj file to have "f " entries without slashes
 void ObjModel::LoadModel(const char *filename) {
 	std::ifstream in;
 	in.open(filename, std::ifstream::in);
 	if (in.fail()) {
-		//std::cerr << "Failed to open " << filename << std::endl;
 		return;
 	}
 	std::string line;
@@ -37,13 +35,13 @@ void ObjModel::LoadModel(const char *filename) {
 			int idx, cnt = 0;
 			iss >> trash;
 			while (iss >> idx) {
-				idx--; // in wavefront obj all indices start at 1, not zero
+				idx--; 
 				f[cnt++] = idx;
 			}
 			if (3 == cnt) faces.push_back(f);
 		}
 	}
-	//std::cerr << "# v# " << verts.size() << " f# " << faces.size() << std::endl;
+
 
 	get_bbox(bboxMin, bboxMax);
 }
@@ -70,11 +68,11 @@ bool ObjModel::ray_aabb_intersect(const Vec3f &orig, const Vec3f &dir) const
 
 	float t_enter = std::max(t_min_x, std::max(t_min_y, t_min_z));
 	float t_exit = std::min(t_max_x, std::min(t_max_y, t_max_z));
-	//std::cerr << t_enter << " " << t_exit << std::endl;
+
 	return t_exit > t_enter && t_exit >= 0;
 }
 
-// Moller and Trumbore
+
 bool ObjModel::ray_triangle_intersect(const int &fi, const Vec3f &orig, const Vec3f &dir, float &tnear, Vec3f& normal) const {
 	Vec3f edge1 = point(vert(fi, 1)) - point(vert(fi, 0));
 	Vec3f edge2 = point(vert(fi, 2)) - point(vert(fi, 0));
@@ -112,7 +110,7 @@ void ObjModel::get_bbox(Vec3f &min, Vec3f &max) {
 			max[j] = std::max(max[j], verts[i][j]);
 		}
 	}
-	//std::cerr << "bbox: [" << min << " : " << max << "]" << std::endl;
+
 }
 
 bool ObjModel::RayIntersect(const Vec3f & orig, const Vec3f & dir,
@@ -161,7 +159,6 @@ Vec3f &ObjModel::point(int i) {
 
 int ObjModel::vert(int fi, int li) const {
 	assert(fi >= 0 && fi < nfaces() && li >= 0 && li < 3);
-	//std::cerr << faces[fi][li] << std::endl;
 	return faces[fi][li];
 }
 

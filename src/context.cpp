@@ -27,7 +27,10 @@ ContextUPtr Context::Create(bool isLocal) {
 }
 
 
-
+void Context::Destroy()
+{
+    //delete[] context;
+}
 
 bool Context::Init() {
     m_box = Mesh::CreateBox();
@@ -92,14 +95,11 @@ void Context::Render() {
             ImGui::ColorEdit3("2.diffuse", glm::value_ptr(m_light1.diffuse));
             ImGui::ColorEdit3("2.specular", glm::value_ptr(m_light1.specular));
         }
+        if (ImGui::CollapsingHeader("Global illumination", ImGuiTreeNodeFlags_DefaultOpen)) {
+            ImGui::Checkbox("Global", &IsLocal);
+        }   
 
 
-    /*
-        if (ImGui::CollapsingHeader("material", ImGuiTreeNodeFlags_DefaultOpen)) {
-            //ImGui::DragFloat("m.shininess", &m_material.shininess, 1.0f, 1.0f, 256.0f);
-        }
-        ImGui::Checkbox("animation", &m_animation);
-    */
     }
     ImGui::End();
 
@@ -297,7 +297,7 @@ bool Context::GlobalInit()
     if (!m_globalProgram)
             return false;
 
-    //glClearColor(0.0f, 0.1f, 0.2f, 0.0f); // 컬러 프레임버퍼 화면을 클리어할 색상 지정
+    glClearColor(0.0f, 0.1f, 0.2f, 0.0f); // 컬러 프레임버퍼 화면을 클리어할 색상 지정
 
     scene = new Scene;
     fullScreen = new FullScreenTexturedQuad;

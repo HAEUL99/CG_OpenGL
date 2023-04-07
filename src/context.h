@@ -23,7 +23,8 @@ public:
     void Reshape(int width, int height);
     void MouseMove(double x, double y);
     void MouseButton(int button, int action, double x, double y);
-    
+    bool IsLocal {true};
+    void Destroy();
 
 private:
     Context() {}
@@ -45,6 +46,8 @@ private:
     bool IsLight {true};
     bool IsLight1 {true};
     bool IsLight2 {true};
+
+    
 
     // clear color
     glm::vec4 m_clearColor { glm::vec4(0.1f, 0.2f, 0.3f, 0.0f) };

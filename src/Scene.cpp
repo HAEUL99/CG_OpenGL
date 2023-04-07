@@ -1,52 +1,16 @@
 #include "framework.h"
 #include "Scene.h"
 #include "Sphere.h"
-#include "Camera.h"
 #include <iostream>
 #include <fstream>
 #include "objModel.h"
 
 
-/*
-SceneUPtr Scene::Create()
-{
-	auto scene = SceneUPtr(new Scene());
-	return std::move(scene);
-
-}
-*/
 void Scene::build()
 {
-	Vec3f eye = Vec3f(0, 0, 7), vup = Vec3f(0, 1, 0), lookat = Vec3f(0, 0, 0);
-	fov = 45 * 3.14159265 / 180.0f;
-	camera.set(eye, lookat, vup, fov);
-
-	const MaterialGlobal shinyIvoryMaterial{ Vec4f{0.6f, 0.3f, 0.1f, 0.0f }, Vec3f{0.4f,0.4f,0.3f}, 50.0f, 1.0f };
-	const MaterialGlobal dullGreenMaterial{ Vec4f{0.7f, 0.1f, 0.0f, 0.0f }, Vec3f{0.2f,0.5f,0.1f}, 5.0f, 1.0f };
-	const MaterialGlobal mirrorMaterial{ Vec4f{0.0f, 10.0f, 0.8f, 0.0f }, Vec3f{1.0f,1.0f,1.0f}, 1425.0f, 1.0f };
-	const MaterialGlobal glassMaterial{ Vec4f{0.0f, 0.5f, 0.1f, 0.8f }, Vec3f{0.6f,0.7f,0.8f}, 125.0f, 1.5f };
-
-
-		// Add objects in scene
-	//scene->AddSphere({ std::string{ "Sphere 1" }, Vec3f(-3.0f, 0.0f, 0.0f), 2.0f, shinyIvoryMaterial });
-	
-	objects.push_back(new Sphere{ std::string{ "Sphere 1" }, Vec3f(0.0f, 0.0f, 0.0f), 2.0f, shinyIvoryMaterial  });
-	
-	//objects.push_back(new ObjModel{ std::string{ "Duck" }, "D:/git/CG/opengl_example/model/duck.obj", mirrorMaterial });
-	
-	objects.push_back(new Sphere{ std::string{ "Sphere 2" }, Vec3f(-4.0f, 4.0f, 2.0f), 1.0f, dullGreenMaterial  });
-	objects.push_back(new Sphere{ std::string{ "Sphere 3" }, Vec3f(-3.0f, 2.0f, -2.0f), 2.0f, mirrorMaterial  });
-	//scene->AddSphere({ std::string{ "Sphere 4" },Vec3f(7.0f, 5.0f, -2.0f), 4.0f, mirrorMaterial });
-
-	//scene->AddObjModel(std::string{ "Duck" }, "D:/raystep/TinyRaytracer_SFML/TinyRatracer_SFML/resources/cow.obj", shinyIvoryMaterial);
-
-	// Add lights in scene
-	//scene->AddLight({ Vec3f(-20.0f, 20.0f, 20.0f), 1.5f });
-	lights.push_back(new Light{ Vec3f(0.0f, 0.0f, 10.0f), 1.5f });
+	//camera
 	mCameraForward = Vec3f(0.0f,0.0f,-1.0f); 
 	mOrbitCameraParameter = Vec3f(15.0f, -90.0f * 3.1415917f / 180.0f, 0.0f); 
-
-
 	mCameraForward.x = cosf(mOrbitCameraParameter.y) * cosf(mOrbitCameraParameter.z);
 	mCameraForward.y = sinf(mOrbitCameraParameter.z);
 	mCameraForward.z = sinf(mOrbitCameraParameter.y) * cosf(mOrbitCameraParameter.z);
@@ -57,8 +21,20 @@ void Scene::build()
 	mCameraRight = cross(mCameraForward, Vec3f{ 0.0f,1.0f,0.0f }).normalize();
 	mCameraUp = cross(mCameraRight, -mCameraForward).normalize();
 
+
+	//Material 
+	const MaterialGlobal YellowGreenMaterial{ Vec4f{0.6f, 0.3f, 0.1f, 0.0f }, Vec3f{0.4f,0.4f,0.3f}, 50.0f, 1.0f };
+	const MaterialGlobal GreenMaterial{ Vec4f{0.7f, 0.1f, 0.0f, 0.0f }, Vec3f{0.2f,0.5f,0.1f}, 5.0f, 1.0f };
+	const MaterialGlobal mirrorMaterial{ Vec4f{0.0f, 10.0f, 0.8f, 0.0f }, Vec3f{1.0f,1.0f,1.0f}, 1425.0f, 1.0f };
+
+	objects.push_back(new Sphere{ std::string{ "Sphere 1" }, Vec3f(4.0f, 4.0f, -2.0f), 2.0f, YellowGreenMaterial  });	
+	objects.push_back(new Sphere{ std::string{ "Sphere 2" }, Vec3f(-4.0f, 4.0f, 2.0f), 1.0f, GreenMaterial  });
+	objects.push_back(new Sphere{ std::string{ "Sphere 3" }, Vec3f(-3.0f, 2.0f, -2.0f), 2.0f, mirrorMaterial  });
 	
-	
+	objects.push_back(new ObjModel{ std::string{ "Duck" }, "./model/duck.obj", mirrorMaterial });
+
+	lights.push_back(new Light{ Vec3f(0.0f, 0.0f, 10.0f), 2.0f });
+	lights.push_back(new Light{ Vec3f(-3.0f, -3.0f, -3.0f), 0.7f });
 }
 
 void Scene::render(std::vector<Vec4f>& image) {
@@ -96,7 +72,6 @@ Vec3f Scene::CastRay(const Vec3f & origin, const Vec3f & direction, size_t curre
 		return Vec3f(0.2f, 0.2f, 0.2f);
 	}
 	
-
 	//---Reflection
 	Vec3f reflectDir = Reflect(direction, normal).normalize();
 	Vec3f reflectOrigin = reflectDir * normal < 0 ? hit - normal * 1e-3 : hit + normal * 1e-3;
@@ -173,22 +148,14 @@ bool Scene::SceneIntersect(const Vec3f & origin, const Vec3f direction,
 		float d = -(origin.y + 8) / direction.y; // the checkerboard plane has equation y = -4
 		Vec3f pt = origin + direction * d;
 		if (d > 0 && fabs(pt.x) < 10 && pt.z<6 && pt.z>-14 && d < modelDist) {
-		//if(d>0 && d< modelDist && std::abs(pt.x)<10 && pt.z<0 && pt.z>-14){
 			checkerboard_dists[0] = d;
 			hit = pt;
-			normal = Vec3f(0, 1, 0);
-			Vec3f diffuseColor;
-			diffuseColor = (int(.5*hit.x + 1000) + int(.5*hit.z)) & 1 ? Vec3f(1, 1, 1) : Vec3f(0.1f, 0.6f, 0.3f);
-			
-			
+			normal = Vec3f(0, 1, 0);	
+			Vec3f diffuseColor = Vec3f(0.1f, 0.6f, 0.3f);
 			diffuseColor = diffuseColor * 0.3f;
 			material.SetDiffuseColor(diffuseColor);
 		}
 	}
-
-	
-	
-
 
 	checkerboard_dists[1] = std::numeric_limits<float>::max();
 	if (fabs(direction.x) > 1e-3) {
@@ -197,8 +164,8 @@ bool Scene::SceneIntersect(const Vec3f & origin, const Vec3f direction,
 		if (d > 0 && fabs(pt.y) < 8 && pt.z<6 && pt.z>-14 && d < modelDist) {
 			checkerboard_dists[1] = d;
 			hit = pt;
-			normal = Vec3f(1, 0, 0);
-			Vec3f diffuseColor = (int(.5*hit.y + 1000) + int(.5*hit.z)) & 1 ? Vec3f(1, 1, 1) : Vec3f(0.1f, 0.6f, 0.3f);
+			normal = Vec3f(1, 0, 0);	
+			Vec3f diffuseColor = Vec3f(0.1f, 0.6f, 0.3f);
 			diffuseColor = diffuseColor * 0.3f;
 			material.SetDiffuseColor(diffuseColor);
 		}
@@ -213,7 +180,7 @@ bool Scene::SceneIntersect(const Vec3f & origin, const Vec3f direction,
 			checkerboard_dists[2] = d;
 			hit = pt;
 			normal = Vec3f(-1, 0, 0);
-			Vec3f diffuseColor = (int(.5*hit.y + 1000) + int(.5*hit.z)) & 1 ? Vec3f(1, 1, 1) : Vec3f(0.1f, 0.6f, 0.3f);
+			Vec3f diffuseColor = Vec3f(0.1f, 0.6f, 0.3f);
 			diffuseColor = diffuseColor * 0.3f;
 			material.SetDiffuseColor(diffuseColor);
 		}
@@ -227,14 +194,12 @@ bool Scene::SceneIntersect(const Vec3f & origin, const Vec3f direction,
 			checkerboard_dists[3] = d;
 			hit = pt;
 			normal = Vec3f(0, 0, 1);
-			Vec3f diffuseColor = (int(.5*hit.y + 1000) + int(.5*hit.x)) & 1 ? Vec3f(1, 1, 1) : Vec3f(0.1f, 0.6f, 0.3f);
+			Vec3f diffuseColor = Vec3f(0.1f, 0.6f, 0.3f);
 			diffuseColor = diffuseColor * 0.3f;
 			material.SetDiffuseColor(diffuseColor);
 		}
 	}
 
-
-	// checkerboard_dist1, checkerboard_dist2
 	float minVal = modelDist;
 	for(int i = 0; i < 4; i++)
 	{

@@ -24,7 +24,6 @@ add_executable(${PROJECT_NAME}
     src/Intersectable.h
     src/framework.h
     src/Sphere.h
-    src/Camera.cpp src/Camera.h
     src/FullScreenTexutredQuad.cpp src/FullScreenTexutredQuad.h
     src/objModel.cpp src/objModel.h
     src/Light.h

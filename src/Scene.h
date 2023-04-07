@@ -2,7 +2,6 @@
 #define MARKER2
 #include "framework.h"
 #include "Intersectable.h"
-#include "Camera.h"
 #include "common.h"
 #include "MaterialGLobal.h"
 #include "ModelBase.h"
@@ -14,9 +13,6 @@ public:
 
 	void build();
 	void render(std::vector<Vec4f>& image);
-	//Hit firstIntersect(Ray ray);
-	//bool shadowIntersect(Ray ray);
-	//vec3 trace(Ray ray, int depth);
 	std::vector<ModelBase *> objects;
 	std::vector<Light *> lights;
 	Vec3f CastRay(const Vec3f& origin, const Vec3f& direction, size_t currentDepth) const;
@@ -33,8 +29,7 @@ private:
 	Vec3f mCameraRight;
 	Vec3f mCameraUp;
 
-	Camera camera;
 	int maxDepth = 3;
-	float fov;
+	float fov = 45 * 3.14159265 / 180.0f;;
 };
 #endif

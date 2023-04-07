@@ -54,7 +54,6 @@ int main(int argc, const char** argv)
 {
     SPDLOG_INFO("Start program");
 
-        // glfw 라이브러리 초기화, 실패하면 에러 출력후 종료
     SPDLOG_INFO("Initialize glfw");
     if (!glfwInit()) {
         const char* description = nullptr;
@@ -68,7 +67,6 @@ int main(int argc, const char** argv)
     glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
     glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
     glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
-
     // ... glfwCreateWindow() 호출 전
 
 
@@ -100,7 +98,7 @@ int main(int argc, const char** argv)
     ImGui_ImplOpenGL3_CreateDeviceObjects();
 
     //local vs global
-    bool isLocal = false;
+    bool isLocal = true;
 
     auto context = Context::Create(isLocal);
     if (!context) {
@@ -119,22 +117,28 @@ int main(int argc, const char** argv)
 	glfwSetScrollCallback(window, OnScroll);
     
     // glfw 루프 실행, 윈도우 close 버튼을 누르면 정상 종료
-    
+    bool IsChanged = false;
     SPDLOG_INFO("Start main loop");
     while (!glfwWindowShouldClose(window)) {
         glfwPollEvents();
 
         ImGui_ImplGlfw_NewFrame();
         ImGui::NewFrame();
-        if(isLocal)
+        if(context->IsLocal)
         {
             context->ProcessInput(window);
             context->Render();
         }
         else
         {
+            if(IsChanged == false)
+            {
+                context = nullptr;
+                IsChanged = true;
+                context = Context::Create(false);
+                context->IsLocal = false;
+            }
             context->GlobalRender();
-
         }
         
         ImGui::Render();
