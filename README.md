@@ -39,5 +39,4 @@ Computer Graphics in 2023 Winter
 - Doc: [learnopengl](https://learnopengl.com/)
 - GitHub: [TinyRaytracer](https://github.com/ssloy/tinyraytracer)
 - GitHub: [Raytracer](https://github.com/FacelessLaw/RayTracing/tree/db0d6480ca35527e08f6f7c95fe94c7fe5682836)
-- 
 
