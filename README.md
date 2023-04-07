@@ -19,10 +19,10 @@ Computer Graphics in 2023 Winter
 
 ## Results
 - Local illumination
-  - <img src="https://user-images.githubusercontent.com/71214577/230677910-c5623dc2-3d51-488f-b26f-59a4831d10b2.png" width="640" height="350">
-- Global illumination
   - ![vllo](https://user-images.githubusercontent.com/71214577/230675306-8e1f451a-a28d-4144-a909-6630369d433f.GIF)
-
+ 
+- Global illumination
+  - <img src="https://user-images.githubusercontent.com/71214577/230677910-c5623dc2-3d51-488f-b26f-59a4831d10b2.png" width="640" height="350">
   
 ## How to compile
 - download cmake 
