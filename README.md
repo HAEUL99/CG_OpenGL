@@ -27,7 +27,7 @@ Computer Graphics in 2023 Winter
 ## How to compile
 - download cmake 
 - move to the directory(if you download it in desktop)
-  - $ cd  ~/desktop/opengl_example-csc4870_assignment1
+  - $ cd  ~/desktop/opengl_example-csc5870_assignment1
 - build
   - $ cmake . -Bbuild
   - $ cmake --build build
