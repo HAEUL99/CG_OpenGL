@@ -17,11 +17,11 @@ Computer Graphics in 2023 Winter
   - Reflections.
 
 
-## Game Routine
+## Results
 - Local illumination
-  - ![vllo 2](https://user-images.githubusercontent.com/71214577/221396051-5eca52f6-4d07-419d-9360-0f6bae228c26.GIF)
+  - <img src="https://user-images.githubusercontent.com/71214577/230677910-c5623dc2-3d51-488f-b26f-59a4831d10b2.png" width="640" height="350">
 - Global illumination
-  - ![vllo](https://user-images.githubusercontent.com/71214577/221396001-bfd278b4-3353-4659-b0ba-9272084f67e2.GIF)
+  - ![vllo](https://user-images.githubusercontent.com/71214577/230675306-8e1f451a-a28d-4144-a909-6630369d433f.GIF)
 
   
 ## How to compile
