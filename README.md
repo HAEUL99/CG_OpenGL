@@ -36,6 +36,5 @@ Computer Graphics in 2023 Winter
 
 ## Reference 
 - GitHub: [opengl course](https://github.com/rinthel/opengl_course)
-- GitHub: [TinyRaytracer](https://github.com/diskhkme/TinyRaytracer_SFML)
 - Doc: [learnopengl](https://learnopengl.com/)
 
