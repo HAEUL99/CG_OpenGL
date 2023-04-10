@@ -34,10 +34,12 @@ void Context::Destroy()
 
 bool Context::Init() {
     m_box = Mesh::CreateBox();
+    m_cow = Mesh::CreateBox();
 
     m_model = Model::Load("./model/backpack.obj");
     if (!m_model)
         return false;
+
 
     m_simpleProgram = Program::Create("./shader/simple.vs", "./shader/simple.fs");
     if (!m_simpleProgram)
@@ -56,6 +58,12 @@ bool Context::Init() {
     m_planeMaterial->diffuse = Texture::CreateFromImage(Image::Load("./image/marble.jpg").get());
     m_planeMaterial->specular = grayTexture;
     m_planeMaterial->shininess = 128.0f;
+
+
+    cow_Material = Material::Create();
+    cow_Material->diffuse = Texture::CreateFromImage(Image::Load("./image/cow-tex-fin.jpg").get());
+    cow_Material->specular = grayTexture;
+    cow_Material->shininess = 128.0f;
 
     return true;
 }
@@ -131,6 +139,8 @@ void Context::Render() {
     m_simpleProgram->SetUniform("color", glm::vec4(m_light1.ambient + m_light1.diffuse, 1.0f));
     m_simpleProgram->SetUniform("transform", projection * view * lightModelTransform1);
     m_box->Draw(m_simpleProgram.get());
+
+    
 
     
     m_program->Use();
@@ -220,17 +230,29 @@ void Context::Render() {
     m_planeMaterial->SetToProgram(m_program.get());
     m_box->Draw(m_program.get());
 
-
-    {
-        //bag 1
+    //cow box
     modelTransform = 
-        glm::translate(glm::mat4(1.0f), glm::vec3(0.0f, 0.2f, 0.0f)) *
-        glm::scale(glm::mat4(1.0f), glm::vec3(0.5f, 0.5f, 0.5f));
-    modelTransform = glm::rotate(modelTransform, -90.0f, glm::vec3(1.0, 0.0, 0.0));
+        glm::translate(glm::mat4(1.0f), glm::vec3(0.0f, 0.0f,0.0f)) *
+        glm::scale(glm::mat4(1.0f), glm::vec3(1.0f, 1.0f, 1.0f));
     transform = projection * view * modelTransform;
     m_program->SetUniform("transform", transform);
     m_program->SetUniform("modelTransform", modelTransform);
-    m_model->Draw(m_program.get());
+    cow_Material->SetToProgram(m_program.get());
+    m_box->Draw(m_program.get());
+
+
+    {
+        //bag 1
+    // modelTransform = 
+    //     glm::translate(glm::mat4(1.0f), glm::vec3(0.0f, 0.2f, 0.0f)) *
+    //     glm::scale(glm::mat4(1.0f), glm::vec3(0.5f, 0.5f, 0.5f));
+    // modelTransform = glm::rotate(modelTransform, -90.0f, glm::vec3(1.0, 0.0, 0.0));
+    // transform = projection * view * modelTransform;
+    // m_program->SetUniform("transform", transform);
+    // m_program->SetUniform("modelTransform", modelTransform);
+    // m_model->Draw(m_program.get());
+
+    
 
     //bag 2
     modelTransform = 

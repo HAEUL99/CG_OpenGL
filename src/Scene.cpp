@@ -27,9 +27,11 @@ void Scene::build()
 	const MaterialGlobal GreenMaterial{ Vec4f{0.7f, 0.1f, 0.0f, 0.0f }, Vec3f{0.2f,0.5f,0.1f}, 5.0f, 1.0f };
 	const MaterialGlobal mirrorMaterial{ Vec4f{0.0f, 10.0f, 0.8f, 0.0f }, Vec3f{1.0f,1.0f,1.0f}, 1425.0f, 1.0f };
 
+
 	objects.push_back(new Sphere{ std::string{ "Sphere 1" }, Vec3f(4.0f, 4.0f, -2.0f), 2.0f, YellowGreenMaterial  });	
 	objects.push_back(new Sphere{ std::string{ "Sphere 2" }, Vec3f(-4.0f, 4.0f, 2.0f), 1.0f, GreenMaterial  });
 	objects.push_back(new Sphere{ std::string{ "Sphere 3" }, Vec3f(-3.0f, 2.0f, -2.0f), 2.0f, mirrorMaterial  });
+
 	
 	objects.push_back(new ObjModel{ std::string{ "Duck" }, "./model/duck.obj", mirrorMaterial });
 

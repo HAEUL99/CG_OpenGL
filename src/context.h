@@ -37,7 +37,9 @@ private:
     Scene* scene;
 
 	MeshUPtr m_box;
+    MeshUPtr m_cow;
     ModelUPtr m_model;
+
     TextureUPtr m_texture;
     TextureUPtr m_texture2;
 
@@ -74,6 +76,7 @@ private:
     Light m_light1;    
 
     MaterialPtr m_planeMaterial;
+    MaterialPtr cow_Material;
 
     // camera parameter
     bool m_cameraControl { false };
