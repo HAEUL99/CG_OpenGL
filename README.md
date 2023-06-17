@@ -1,4 +1,4 @@
-# opengl_example
+# Computer Graphics
 Computer Graphics in 2023 Winter 
 --------------
 
